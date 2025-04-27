@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4">🏆 Leaderboard</h1>
+
+  <!-- Category Guide Card Row -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 bg-light">
+        <div class="card-body">
+          <h5 class="card-title">📘 Category Guide</h5>
+          <ul class="mb-0">
+            <li><strong>⭐ Top Rated</strong>: Profiles with the highest average user ratings.</li>
+            <li><strong>💬 Most Commented</strong>: Profiles with the most user comments.</li>
+            <li><strong>👀 Most Viewed</strong>: Profiles with the most page views.</li>
+            <li><strong>❤️ Fan Favorites</strong>: Profiles that received the most "Fan Favorite" votes.</li>
+            <li><strong>🌟 Influence Score</strong>: Combines ratings, votes, and comments into a weighted score.</li>
+            <li><strong>🔥 Recently Trending</strong>: Profiles created most recently and gaining attention.</li>
+            <li><strong>📈 Rising Stars</strong>: Newer profiles starting to collect solid engagement.</li>
+            <li><strong>🗣️ Most Feedback Given</strong>: Users who have commented the most across profiles.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing leaderboard rows -->
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">⭐ Top Rated</h5>
+          <ul class="list-unstyled mb-0">
+            {% for profile in top_rated %}
+              <li class="d-flex justify-content-between">
+                <a href="{% url 'profile_detail' profile.id %}">{{ profile.name }}</a>
+                <span class="badge bg-primary">{{ profile.avg_rating|floatformat:2 }}/5</span>
+              </li>
+            {% empty %}
+              <li>No data yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">💬 Most Commented</h5>
+          <ul class="list-unstyled mb-0">
+            {% for profile in most_commented %}
+              <li class="d-flex justify-content-between">
+                <a href="{% url 'profile_detail' profile.id %}">{{ profile.name }}</a>
+                <span class="badge bg-success">{{ profile.comment_count }}</span>
+              </li>
+            {% empty %}
+              <li>No data yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">👀 Most Viewed</h5>
+          <ul class="list-unstyled mb-0">
+            {% for profile in most_viewed %}
+              <li class="d-flex justify-content-between">
+                <a href="{% url 'profile_detail' profile.id %}">{{ profile.name }}</a>
+                <span class="badge bg-info text-dark">{{ profile.views }}</span>
+              </li>
+            {% empty %}
+              <li>No data yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">❤️ Fan Favorites</h5>
+          <ul class="list-unstyled mb-0">
+            {% for profile in fan_favorites %}
+              <li class="d-flex justify-content-between">
+                <a href="{% url 'profile_detail' profile.id %}">{{ profile.name }}</a>
+                <span class="badge bg-danger">{{ profile.fan_votes.count }}</span>
+              </li>
+            {% empty %}
+              <li>No votes yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">🌟 Influence Score</h5>
+          <ul class="list-unstyled mb-0">
+            {% for profile in most_influential %}
+              <li class="d-flex justify-content-between">
+                <a href="{% url 'profile_detail' profile.id %}">{{ profile.name }}</a>
+                <span class="badge bg-warning text-dark">{{ profile.influence_score }}</span>
+              </li>
+            {% empty %}
+              <li>No data yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">🔥 Recently Trending</h5>
+          <ul class="list-unstyled mb-0">
+            {% for profile in recently_trending %}
+              <li class="d-flex justify-content-between">
+                <a href="{% url 'profile_detail' profile.id %}">{{ profile.name }}</a>
+                <span class="badge bg-secondary">New</span>
+              </li>
+            {% empty %}
+              <li>No recent activity.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">📈 Rising Stars</h5>
+          <ul class="list-unstyled mb-0">
+            {% for profile in rising_stars %}
+              <li class="d-flex justify-content-between">
+                <a href="{% url 'profile_detail' profile.id %}">{{ profile.name }}</a>
+                <span class="badge bg-info text-dark">{{ profile.avg_rating|floatformat:2 }}/5</span>
+              </li>
+            {% empty %}
+              <li>No rising stars yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+  <div class="card shadow-sm border-0 three-d-card">
+    <div class="card-body">
+      <h5 class="card-title">🗣️ Most Feedback Given</h5>
+      <ul class="list-unstyled mb-0">
+        {% for user in most_feedback_given %}
+          <li class="d-flex justify-content-between">
+            <span>{{ user.username }}</span>
+            <span class="badge bg-warning-subtle text-dark fw-bold">{{ user.comment_count }} comments</span>
+          </li>
+        {% empty %}
+          <li>No feedback yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+  </div>
+</div>
+{% endblock %}

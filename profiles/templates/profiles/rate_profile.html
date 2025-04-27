@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Profile</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .star {
+            font-size: 30px;
+            cursor: pointer;
+            color: gray;
+        }
+        .star:hover, .star.selected {
+            color: gold;
+        }
+    </style>
+</head>
+<body>
+<form id="csrf-form">
+    {% csrf_token %}
+</form>
+    <h1>Rate Profile: {{ profile.name }}</h1>
+
+    <div id="rating">
+        {% for star in "12345" %}
+            <span class="star" data-value="{{ star }}">★</span>
+        {% endfor %}
+    </div>
+
+    <p id="rating-message"></p>
+
+    <script>
+$(document).ready(function() {
+    function getCSRFToken() {
+        return document.querySelector('#csrf-form input[name=csrfmiddlewaretoken]').value;
+    }
+
+    $(".star").click(function() {
+        let rating = $(this).attr("data-value");  // Get selected rating
+        let profileId = "{{ profile.id }}";  // Get profile ID
+
+        $.ajax({
+            url: "/profiles/" + profileId + "/rate/",
+            type: "POST",
+            data: { rating: rating },  // Send rating as POST data
+            headers: { "X-CSRFToken": getCSRFToken() },  // Send CSRF token
+            success: function(response) {
+                $("#rating-message").text("You rated this profile " + rating + " stars!");
+                $(".star").removeClass("selected");
+                $(".star").each(function() {
+                    if ($(this).attr("data-value") <= rating) {
+                        $(this).addClass("selected");
+                    }
+                });
+            },
+            error: function(xhr) {
+                $("#rating-message").text("Error submitting rating: " + xhr.responseText);
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

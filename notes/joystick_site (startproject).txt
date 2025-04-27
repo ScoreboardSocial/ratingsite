@@ -1,0 +1,8 @@
+joystick_site (startproject)
+
+Username: Tehachapi
+Password: Tomahawks1994!$
+Email: kisaleem@gmail.com
+
+import command:
+python manage.py import_profiles "C:\Users\ishma\Desktop\RatingSite\profiles\management\commands\profiles.csv"

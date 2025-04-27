@@ -1,0 +1,70 @@
+🔧 ADMIN TOOL OPTIONS
+1. Dashboard Stats (Custom Admin Panel Widgets)
+Total users
+
+Active profiles
+
+Average ratings across all profiles
+
+Most active users (by comments or ratings)
+
+Recently registered users
+
+2. CSV/Excel Export Options
+Export profile data (ratings, votes, comments)
+
+Export user lists and activity logs
+
+Export analytics data (views, influence scores, etc.)
+
+3. Admin-Only Comment & Rating Moderation
+Approve/delete comments directly from admin
+
+See flagged or reported comments
+
+Remove or adjust suspicious ratings
+
+4. User Activity Viewer
+See how many profiles each user has rated
+
+Comment history
+
+Last login, join date, etc.
+
+5. Fan Favorite Analytics
+Top voted profiles over time
+
+One-click reset or archive of votes
+
+See which users are most engaged in voting
+
+6. Leaderboard Controls
+Manually feature a profile
+
+Reset influence scores
+
+Highlight "admin-picked" profiles
+
+7. Bulk Profile Management
+Add/edit multiple profiles at once
+
+Mass tag management
+
+Assign default images in bulk
+
+8. Scheduled Tasks (Via Django Admin + Celery or Cron)
+Auto-refresh leaderboard daily
+
+Archive inactive profiles
+
+Email digests of top content to admins
+
+9. Audit Logs
+Who created/edited/deleted content
+
+Rating/comment history with timestamps
+
+10. Inline Editing & Filtering
+Edit ratings/comments directly on the model list view
+
+Use custom filters in the admin sidebar (e.g. by tag, rating range)

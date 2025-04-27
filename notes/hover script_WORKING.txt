@@ -1,0 +1,58 @@
+<style>
+  .star {
+    font-size: 24px;
+    cursor: pointer;
+    color: gray;
+    transition: color 0.2s;
+  }
+
+  .star.hovered {
+    color: orange;
+  }
+
+  .star.selected {
+    color: gold;
+  }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    const getCSRFToken = () => document.querySelector('#csrf-form input[name=csrfmiddlewaretoken]').value;
+
+    $(document).on("mouseenter", ".star", function () {
+      const value = $(this).data("value");
+      $(this).siblings().removeClass("hovered");
+      $(this).prevAll().addBack().addClass("hovered");
+    });
+
+    $(document).on("mouseleave", ".star", function () {
+      $(".star").removeClass("hovered");
+    });
+
+    $(document).on("click", ".star", function () {
+      const rating = $(this).data("value");
+      const profileId = $(this).parent().data("profile");
+
+      $.ajax({
+        url: `/profiles/${profileId}/rate/`,
+        type: "POST",
+        contentType: "application/json",
+        headers: { "X-CSRFToken": getCSRFToken() },
+        data: JSON.stringify({ rating: rating }),
+        success: function (response) {
+          $(`#rating-message-${profileId}`).text(`You rated this profile ${rating} stars!`);
+          $(`#rating-${profileId}`).text(response.new_rating);
+          $(`#total-votes-${profileId}`).text(response.total_votes);
+          $(`.rating-stars[data-profile=${profileId}] .star`).each(function () {
+            const val = $(this).data("value");
+            $(this).toggleClass("selected", val <= rating);
+          });
+        },
+        error: function () {
+          $(`#rating-message-${profileId}`).text(`Error: You must be logged in to rate.`);
+        }
+      });
+    });
+  });
+</script>
+

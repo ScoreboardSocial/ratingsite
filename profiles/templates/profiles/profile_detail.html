@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+
+  <h1 class="mb-3">{{ profile.name }}</h1>
+
+  <!-- Profile Image -->
+  {% if profile.image %}
+    <img src="{{ profile.image.url }}" class="img-fluid rounded mb-3" style="max-width: 100px;" alt="{{ profile.name }}">
+  {% else %}
+    <img src="{% static 'images/default_profile.jpg' %}" class="img-fluid rounded mb-3" style="max-width: 100px;" alt="Default Profile">
+  {% endif %}
+
+  <!-- Social Media Links -->
+  <div class="mb-3">
+    {% if profile.instagram %}
+      <a href="{{ profile.instagram }}" class="btn btn-outline-dark btn-sm" target="_blank">Instagram</a>
+    {% endif %}
+    {% if profile.twitter %}
+      <a href="{{ profile.twitter }}" class="btn btn-outline-dark btn-sm" target="_blank">Twitter</a>
+    {% endif %}
+  </div>
+
+<!-- Influence Score Badge -->
+<div class="mt-3 mb-4">
+  <span class="badge bg-warning text-dark py-2 px-3 shadow" style="font-size:1rem;">
+    🌟 Influence Score: {{ profile.influence_score }}
+  </span>
+</div>
+
+  <!-- Social Sharing Buttons -->
+<div class="mt-4">
+  <h5>Share this Profile:</h5>
+<a href="https://pinterest.com/pin/create/button/?url={{ request.build_absolute_uri }}&description={{ profile.name }}" 
+   target="_blank" class="btn btn-danger btn-sm">
+  <i class="fab fa-pinterest-p"></i> Pinterest
+</a>
+
+<a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+     target="_blank" class="btn btn-primary btn-sm me-2">
+    <i class="fab fa-facebook-f"></i> Facebook
+  </a>
+
+  <a href="https://twitter.com/intent/tweet?text=Check+out+{{ profile.name }}!&url={{ request.build_absolute_uri }}" 
+     target="_blank" class="btn btn-info btn-sm text-white me-2">
+    <i class="fab fa-twitter"></i> Twitter
+  </a>
+
+  <!-- Instagram Sharing Instruction -->
+  <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#instagramModal">
+    <i class="fab fa-instagram"></i> Instagram
+  </button>
+</div>
+
+<!-- Instagram Share Instruction Modal -->
+<div class="modal fade" id="instagramModal" tabindex="-1" aria-labelledby="instagramModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="instagramModalLabel">Share on Instagram</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        {% if profile.image %}
+          <img src="{{ profile.image.url }}" class="img-fluid rounded mb-3" style="width:250px; height:250px; object-fit:cover;" alt="{{ profile.name }}">
+        {% else %}
+          <img src="{% static 'images/default_profile.jpg' %}" class="img-fluid rounded mb-3" style="width:250px; height:250px; object-fit:cover;" alt="Default Profile">
+        {% endif %}
+        <p>Screenshot or download the above image, then share it on your Instagram story or post!</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Gallery Images -->
+  <div class="mt-4">
+    <h4>Gallery</h4>
+    <div class="row g-3">
+      {% for image in images %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <img src="{{ image.image.url }}" class="img-fluid rounded shadow-sm" alt="Profile Image">
+        </div>
+      {% empty %}
+        <p>No additional images.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Rating Info -->
+  <p class="mt-4">
+    User Rating: <span id="rating-{{ profile.id }}">{{ avg_rating|floatformat:2 }}</span>/5
+    (<span id="total-votes-{{ profile.id }}">{{ total_ratings }}</span> votes)
+  </p>
+
+  <!-- Star Rating -->
+  <div class="mb-3">
+    {% for i in "12345" %}
+      <span 
+        class="star {% if user_rating|default:0 >= i %}selected{% endif %}" 
+        data-profile="{{ profile.id }}" 
+        data-value="{{ i }}">★</span>
+    {% endfor %}
+  </div>
+<form method="POST" action="{% url 'vote_fan_favorite' profile.id %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-outline-danger mt-2">
+    ❤️ Vote Fan Favorite ({{ profile.fan_votes.count }})
+  </button>
+</form>  <!-- Tags -->
+  {% if profile.tags.all %}
+    <p>
+      {% for tag in profile.tags.all %}
+        <span class="badge bg-secondary">{{ tag.name }}</span>
+      {% endfor %}
+    </p>
+  {% endif %}
+
+  <a href="{% url 'profile_list' %}" class="btn btn-outline-secondary mb-4">← Back to Profiles</a>
+
+  <p id="rating-message-{{ profile.id }}" class="text-success mt-2 small"></p>
+
+  <!-- CSRF token for AJAX -->
+  <form id="csrf-form">{% csrf_token %}</form>
+
+  <!-- Comments Section -->
+  <hr>
+  <h4>Comments</h4>
+
+  {% if user.is_authenticated %}
+    <form method="post" class="mb-4">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Post Comment</button>
+    </form>
+  {% else %}
+    <p><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>
+  {% endif %}
+
+  <div class="mt-3">
+    {% for comment in comments %}
+      <div class="border rounded p-3 mb-3 bg-light">
+        <strong>{{ comment.user.username }}</strong>
+        <small class="text-muted">on {{ comment.created_at|date:"M d, Y H:i" }}</small>
+        <p class="mb-0">{{ comment.content }}</p>
+
+        {% if user.is_staff or comment.user == user %}
+          <a href="{% url 'comment_edit' comment.id %}" class="btn btn-sm btn-secondary mt-2">Edit</a>
+          <a href="{% url 'comment_delete' comment.id %}" class="btn btn-sm btn-danger mt-2">Delete</a>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p>No comments yet.</p>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block content_extra %}
+<style>
+  .star {
+    font-size: 24px;
+    cursor: pointer;
+    color: gray;
+    transition: color 0.2s;
+  }
+  .star.selected {
+    color: gold;
+  }
+  .star.hovered {
+    color: orange;
+  }
+</style>
+
+<script>
+$(document).ready(function () {
+  const getCSRFToken = () => document.querySelector('#csrf-form input[name=csrfmiddlewaretoken]').value;
+
+  $(document).on("mouseenter", ".star", function () {
+    const value = $(this).data("value");
+    $(this).siblings().removeClass("hovered");
+    $(this).prevAll().addBack().addClass("hovered");
+  });
+
+  $(document).on("mouseleave", ".star", function () {
+    $(".star").removeClass("hovered");
+  });
+
+  $(document).on("click", ".star", function () {
+    const rating = $(this).data("value");
+    const profileId = $(this).data("profile");
+
+    $.ajax({
+      url: `/profiles/${profileId}/rate/`,
+      type: "POST",
+      contentType: "application/json",
+      headers: { "X-CSRFToken": getCSRFToken() },
+      data: JSON.stringify({ rating: rating }),
+      success: function (response) {
+        $(`#rating-message-${profileId}`).text(`You rated this profile ${rating} stars!`);
+        $(`#rating-${profileId}`).text(response.new_rating);
+        $(`#total-votes-${profileId}`).text(response.total_votes);
+        $(`.star[data-profile=${profileId}]`).removeClass("selected");
+        $(`.star[data-profile=${profileId}]`).each(function () {
+          if ($(this).data("value") <= rating) {
+            $(this).addClass("selected");
+          }
+        });
+      },
+      error: function () {
+        $(`#rating-message-${profileId}`).text(`Error: You must be logged in to rate.`);
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

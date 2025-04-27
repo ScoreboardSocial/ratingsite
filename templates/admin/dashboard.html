@@ -1,0 +1,9 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h1>Dashboard Overview</h1>
+  <div class="dashboard-stats">
+    <p><strong>Total Profiles:</strong> {{ total_profiles }}</p>
+    <p><strong>Total Ratings:</strong> {{ total_ratings }}</p>
+    <p><strong>Average Rating:</strong> {{ avg_rating }}</p>
+  </div>
+{% endblock %}

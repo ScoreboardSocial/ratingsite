@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1 class="mb-4">Profile List</h1>
+
+{% if featured_profile %}
+<div class="row justify-content-center mb-4">
+  <!-- Featured Profile Card -->
+  <div class="col-12 col-md-5 mx-2">
+    <div class="card featured-card shadow-lg gold-glow three-d-card">
+      <div class="row g-0">
+        <div class="col-md-4 text-center p-3">
+          {% if featured_profile.image %}
+            <img src="{{ featured_profile.image.url }}" class="img-fluid rounded-circle shadow" style="width:120px; height:120px; object-fit:cover;" alt="{{ featured_profile.name }}">
+          {% else %}
+            <img src="{% static 'images/default_profile.jpg' %}" class="img-fluid rounded-circle shadow" style="width:120px; height:120px; object-fit:cover;" alt="Default Profile">
+          {% endif %}
+        </div>
+        <div class="col-md-8 d-flex align-items-center">
+          <div class="card-body">
+            <h3 class="card-title">🌟 Featured Profile: {{ featured_profile.name }}</h3>
+            <p class="card-text">User Rating: <strong>{{ featured_profile.avg_rating|default:"0.00"|floatformat:2 }}</strong>/5</p>
+            <a href="{% url 'profile_detail' featured_profile.id %}" class="btn btn-varsity">View Featured Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Card -->
+  <div class="col-12 col-md-5 mx-2">
+    <div class="card shadow-sm h-100 three-d-card">
+      <div class="card-body">
+        <h4 class="card-title">👋 Welcome to Scoreboard Social!</h4>
+        <p class="card-text">Here's how to get started:</p>
+        <ul class="list-unstyled ps-3">
+          <li>✅ <strong>Create an account</strong> to rate and comment on profiles.</li>
+          <li>⭐ <strong>Click stars</strong> to rate a profile from 1–5.</li>
+          <li>❤️ <strong>Vote Fan Favorite</strong> once per profile.</li>
+          <li>📝 <strong>Leave comments</strong> and join the discussion.</li>
+          <li>🏆 <strong>Check the leaderboard</strong> for top influencers.</li>
+        </ul>
+        <a href="{% url 'signup' %}" class="btn btn-varsity w-100 mt-2">Create Account</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Admin Dashboard Stats -->
+{% if user.is_staff %}
+<div class="row justify-content-center mb-4">
+  <div class="col-12 col-lg-10">
+    <div class="card shadow-sm three-d-card bg-light">
+      <div class="card-body">
+        <h4 class="card-title">📊 Admin Dashboard Stats</h4>
+        <div class="row row-cols-2 row-cols-md-4 g-4 mt-3">
+          <div class="col">
+            <div class="p-3 border rounded text-center">
+              <h5>Total Users</h5>
+              <strong>{{ total_users }}</strong>
+            </div>
+          </div>
+          <div class="col">
+            <div class="p-3 border rounded text-center">
+              <h5>Profiles Rated</h5>
+              <strong>{{ profiles_rated }}</strong>
+            </div>
+          </div>
+          <div class="col">
+            <div class="p-3 border rounded text-center">
+              <h5>Total Ratings</h5>
+              <strong>{{ total_ratings }}</strong>
+            </div>
+          </div>
+          <div class="col">
+            <div class="p-3 border rounded text-center">
+              <h5>Total Comments</h5>
+              <strong>{{ total_comments }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<form method="get" class="mb-4 d-flex" role="search">
+  <input type="text" name="q" class="form-control me-2" placeholder="Search profiles..." value="{{ query|default_if_none:'' }}">
+  <button type="submit" class="btn btn-outline-primary">Search</button>
+</form>
+
+<!-- Additional styles from Scoreboard Social brand -->
+<style>
+  body {
+    background-color: #fdf9f3;
+  }
+  .btn-varsity {
+    background-color: #572d80;
+    color: white;
+    font-weight: bold;
+    border-radius: 0.5rem;
+  }
+  .btn-varsity:hover {
+    background-color: #3e1d5a;
+    color: #fff;
+  }
+  .three-d-card {
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 6px 15px rgba(87, 45, 128, 0.15), 0 10px 30px rgba(87, 45, 128, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .three-d-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(87, 45, 128, 0.2);
+  }
+  .varsity-badge {
+    background-color: #ffb200;
+    color: #000;
+    font-weight: bold;
+    padding: 0.4em 0.6em;
+    border-radius: 0.4rem;
+  }
+  .text-varsity {
+    color: #572d80;
+  }
+</style>
+
+<!-- Sorting Links -->
+<div class="mb-4">
+  <strong>Sort by:</strong>
+  <a href="?sort=rating" class="btn btn-outline-secondary btn-sm {% if sort == 'rating' %}active{% endif %}">Highest Rated</a>
+  <a href="?sort=lowest" class="btn btn-outline-secondary btn-sm {% if sort == 'lowest' %}active{% endif %}">Lowest Rated</a>
+  <a href="?sort=new" class="btn btn-outline-secondary btn-sm {% if sort == 'new' %}active{% endif %}">Newest</a>
+  <a href="{% url 'profile_list' %}" class="btn btn-outline-secondary btn-sm {% if sort == 'default' %}active{% endif %}">Default</a>
+</div>
+
+<!-- Tag Filtering -->
+{% if tags %}
+<div class="mb-4">
+  <strong>Filter by tags:</strong>
+  {% for tag in tags %}
+    <a href="?tag={{ tag.id }}" class="badge {% if active_tag == tag.id %}bg-primary{% else %}bg-secondary{% endif %}">{{ tag.name }}</a>
+  {% endfor %}
+  {% if active_tag %}
+    <a href="{% url 'profile_list' %}" class="badge bg-danger">Clear filter</a>
+  {% endif %}
+</div>
+{% endif %}
+
+<form id="csrf-form">{% csrf_token %}</form>
+
+{% if profiles %}
+  <div class="row row-cols-2 row-cols-sm-3 row-cols-md-6 g-5">
+    {% for profile in profiles %}
+      <div class="col">
+        <div class="card profile-card h-100 shadow-sm three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
+          <div class="text-center py-1">
+            {% if profile.image %}
+              <img src="{{ profile.image.url }}" class="rounded" style="width: 100px; height: 100px; object-fit: cover;" alt="{{ profile.name }}">
+            {% else %}
+              <img src="{% static 'images/default_profile.jpg' %}" class="rounded" style="width: 100px; height: 100px; object-fit: cover;" alt="Default Profile">
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ profile.name }}</h5>
+            <p>
+              User Rating: <span id="rating-{{ profile.id }}">{{ profile.avg_rating|default:0|floatformat:2 }}</span>/5
+              (<span id="total-votes-{{ profile.id }}">{{ profile.total_ratings }}</span> votes)
+            </p>
+            <p>
+              <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
+            </p>
+            <div class="rating-stars mb-2" data-profile="{{ profile.id }}">
+              {% for i in "12345" %}
+                <span class="star {% if profile.avg_rating|default:0 >= i %}selected{% endif %}" data-value="{{ i }}">★</span>
+              {% endfor %}
+            </div>
+            <p id="rating-message-{{ profile.id }}" class="text-success mt-2 small"></p>
+            {% if profile.tags.all %}
+              <p>
+                {% for tag in profile.tags.all %}
+                  <span class="badge bg-secondary">{{ tag.name }}</span>
+                {% endfor %}
+              </p>
+            {% endif %}
+            <form method="POST" action="{% url 'vote_fan_favorite' profile.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger w-100 mt-1">
+                ❤️ Fan Favorite ({{ profile.fan_votes.count }})
+              </button>
+            </form>
+            <a href="{% url 'profile_detail' profile.id %}" class="btn btn-sm btn-varsity w-100 mt-2">View Profile</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <nav class="mt-4" aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if active_tag %}&tag={{ active_tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Previous</a>
+        </li>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+          <a class="page-link" href="?page={{ num }}{% if active_tag %}&tag={{ active_tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
+        </li>
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if active_tag %}&tag={{ active_tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Next</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+{% else %}
+  <p>No profiles found.</p>
+{% endif %}
+<style>
+  .star {
+    font-size: 24px;
+    cursor: pointer;
+    color: gray;
+    transition: color 0.2s;
+  }
+
+  .star.hovered {
+    color: orange;
+  }
+
+  .star.selected {
+    color: gold;
+  }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    const getCSRFToken = () => document.querySelector('#csrf-form input[name=csrfmiddlewaretoken]').value;
+
+    $(document).on("mouseenter", ".star", function () {
+      const value = $(this).data("value");
+      $(this).siblings().removeClass("hovered");
+      $(this).prevAll().addBack().addClass("hovered");
+    });
+
+    $(document).on("mouseleave", ".star", function () {
+      $(".star").removeClass("hovered");
+    });
+
+    $(document).on("click", ".star", function () {
+      const rating = $(this).data("value");
+      const profileId = $(this).parent().data("profile");
+
+      $.ajax({
+        url: `/profiles/${profileId}/rate/`,
+        type: "POST",
+        contentType: "application/json",
+        headers: { "X-CSRFToken": getCSRFToken() },
+        data: JSON.stringify({ rating: rating }),
+        success: function (response) {
+          $(`#rating-message-${profileId}`).text(`You rated this profile ${rating} stars!`);
+          $(`#rating-${profileId}`).text(response.new_rating);
+          $(`#total-votes-${profileId}`).text(response.total_votes);
+          $(`.rating-stars[data-profile=${profileId}] .star`).each(function () {
+            const val = $(this).data("value");
+            $(this).toggleClass("selected", val <= rating);
+          });
+        },
+        error: function () {
+          $(`#rating-message-${profileId}`).text(`Error: You must be logged in to rate.`);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
