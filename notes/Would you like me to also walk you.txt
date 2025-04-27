@@ -1,0 +1,36 @@
+Would you like me to also walk you through:
+
+Setting up static files properly on Render?
+
+Customizing the 404 and 500 error pages?
+
+Setting up free HTTPS with Render (SSL certificate)?
+
+
+Here are a few optional next steps you might want to think about:
+
+✅ Double-check the live site
+
+Click around, test profile list, rating stars, comments, signup, login, leaderboard, etc.
+
+✅ Enable auto-deploy on Render (if you haven't already)
+
+This way when you git push to GitHub, it automatically updates your live site.
+
+✅ Custom domain (optional for later)
+
+Instead of a Render-provided URL, you can link a .com or .social domain.
+
+✅ Debug settings for production
+
+Set DEBUG = False in your Render environment settings.
+
+Add your Render hostname to ALLOWED_HOSTS (like scoreboard-social.onrender.com).
+
+✅ Performance tweaks
+
+(Optional) Later you might want to add caching, whitenoise optimization, or a CDN for media.
+
+✅ Celebrate! 🎉
+
+You've built something real — that's no small thing. Go tell someone today!
