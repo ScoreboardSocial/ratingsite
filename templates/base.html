@@ -65,7 +65,17 @@
     }
     .profile-card:hover {
       transform: scale(1.02);
-      box-shadow: 0 0 15px rgba(26, 31, 113, 0.3); /* Navy shadow */
+      box-shadow: 0 0 15px rgba(26, 31, 113, 0.3);
+    }
+
+    /* Social Media Icon Styling */
+    .social-icon {
+      color: var(--varsity-black);
+      transition: color 0.3s, transform 0.3s;
+    }
+    .social-icon:hover {
+      color: var(--varsity-gold);
+      transform: scale(1.2);
     }
   </style>
 
@@ -127,10 +137,10 @@
 <!-- Footer -->
 <footer class="text-center py-4 mt-5 bg-light border-top">
   <div class="mb-2">
-    <a href="https://www.instagram.com/ScoreSocialSite" target="_blank" class="text-dark me-3">
+    <a href="https://www.instagram.com/ScoreSocialSite" target="_blank" class="social-icon me-3">
       <i class="fab fa-instagram fa-2x"></i>
     </a>
-    <a href="https://twitter.com/ScoreSocialSite" target="_blank" class="text-dark">
+    <a href="https://twitter.com/ScoreSocialSite" target="_blank" class="social-icon">
       <i class="fab fa-twitter fa-2x"></i>
     </a>
   </div>
