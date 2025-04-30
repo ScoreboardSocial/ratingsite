@@ -1,0 +1,34 @@
+📬 How to Set Up Render Deployment Email Notifications
+Step 1: Go to Render.com
+Log into your Render Dashboard.
+
+Click into your project (your live Django site).
+
+Step 2: Open "Settings" Tab
+In the sidebar, click “Settings” for your service.
+
+Step 3: Scroll Down to "Deploy Hook" or "Notifications"
+Under Settings, scroll until you find:
+
+Deploy Notifications
+
+It’s usually near Environment / Build & Deploy sections.
+
+Step 4: Add a Notification Email
+Add your email address under the Deployment Notifications setting.
+
+Choose when you want to be notified:
+
+✅ On Successful Deployments (recommended)
+
+✅ On Failed Deployments (recommended — so you know if something broke)
+
+✅ That’s it!
+Now every time you push to GitHub, Render will automatically:
+
+Deploy the updated site.
+
+Send you an email like:
+"🎉 Deployment Succeeded on Scoreboard Social!"
+or
+"⚠️ Deployment Failed on Scoreboard Social"
