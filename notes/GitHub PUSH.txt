@@ -6,34 +6,25 @@ Example: C:\Users\ishma\desktop\ratingsite)
 Check what files have changed
 Run:
 
-bash
-Copy
-Edit
 git status
 ➔ This will show you that templates/base.html (and maybe others) have changed.
 
 Stage the changes
 This tells Git you want to commit these changes.
 
-bash
-Copy
-Edit
+
 git add templates/base.html
-(or simply git add . to add everything that's changed if you prefer)
+➔(or simply git add . to add everything that's changed if you prefer)
 
 Commit the changes with a message
 Now "lock in" your changes with a short note:
 
-bash
-Copy
-Edit
+
 git commit -m "Update base.html with Google Analytics and new color palette"
 Push the changes to GitHub
-Finally send the changes to your GitHub repository:
+➔Finally send the changes to your GitHub repository:
 
-bash
-Copy
-Edit
+
 git push
 ✅ That's it!
-Within seconds, GitHub will show your new base.html, and Render (your hosting) will automatically detect the change and redeploy your site in the background.
+➔Within seconds, GitHub will show your new base.html, and Render (your hosting) will automatically detect the change and redeploy your site in the background.
