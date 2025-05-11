@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", 'django-insecure-please-change-this'
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 # Only allow your Render domain in production
-ALLOWED_HOSTS = ['scoreboardsocial.onrender.com'] if not DEBUG else ['*']
+ALLOWED_HOSTS = ['scoreboard-social.onrender.com', 'www.scoreboard-social.com', 'scoreboard-social.com'] if not DEBUG else ['*']
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
