@@ -130,12 +130,13 @@
 </style>
 
 <!-- Sorting Links -->
-<div class="mb-4">
+<div class="mb-4 d-flex flex-wrap gap-2 align-items-center">
   <strong>Sort by:</strong>
   <a href="?sort=rating" class="btn btn-outline-secondary btn-sm {% if sort == 'rating' %}active{% endif %}">Highest Rated</a>
   <a href="?sort=lowest" class="btn btn-outline-secondary btn-sm {% if sort == 'lowest' %}active{% endif %}">Lowest Rated</a>
   <a href="?sort=new" class="btn btn-outline-secondary btn-sm {% if sort == 'new' %}active{% endif %}">Newest</a>
   <a href="{% url 'profile_list' %}" class="btn btn-outline-secondary btn-sm {% if sort == 'default' %}active{% endif %}">Default</a>
+  <a href="?shuffle=1" class="btn btn-outline-primary btn-sm">🔀 Shuffle</a>
 </div>
 
 <!-- Tag Filtering -->

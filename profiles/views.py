@@ -77,6 +77,7 @@ def profile_list(request):
     sort = request.GET.get('sort', 'default')
     tag_id = request.GET.get('tag')
     query = request.GET.get('q', '')
+    shuffle = request.GET.get('shuffle') == '1'
 
     profiles = Profile.objects.annotate(
         avg_rating=Avg('ratings__rating'),
@@ -95,6 +96,8 @@ def profile_list(request):
         profiles = profiles.order_by('avg_rating')
     elif sort == 'new':
         profiles = profiles.order_by('-created_at')
+    elif shuffle:
+        profiles = profiles.order_by('?')
     else:
         profiles = profiles.order_by('id')
 
@@ -106,7 +109,6 @@ def profile_list(request):
     all_profiles = list(Profile.objects.annotate(avg_rating=Avg('ratings__rating')))
     featured_profile = random.choice(all_profiles) if all_profiles else None
 
-    # Admin Dashboard Stats
     dashboard_stats = {}
     if request.user.is_staff:
         dashboard_stats = {
