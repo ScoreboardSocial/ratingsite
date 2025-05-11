@@ -5,6 +5,8 @@ from django.urls import path
 from django.template.response import TemplateResponse
 from django.db.models import Avg, Count
 from django.http import HttpResponse
+from django import forms
+from django.shortcuts import render, redirect
 import csv
 
 from .models import Profile, Rating, Tag, Comment, ProfileImage, FanFavoriteVote
@@ -31,23 +33,58 @@ def export_profiles_csv(modeladmin, request, queryset):
 
 export_profiles_csv.short_description = "Export selected profiles to CSV"
 
-# ---------- Profile Admin ----------
+# ---------- Bulk Tag Form ----------
+class TagForm(forms.Form):
+    _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
+    tag_name = forms.CharField(label="Tag to apply", max_length=50)
+
+# ---------- Profile Image Inline ----------
 class ProfileImageInline(admin.TabularInline):
     model = ProfileImage
     extra = 1
     max_num = 6
 
+# ---------- Profile Admin ----------
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['name', 'instagram', 'average_rating']
     search_fields = ['name', 'instagram', 'twitter']
     list_filter = ['tags']
-    actions = [export_profiles_csv]
+    actions = [export_profiles_csv, 'bulk_add_tag']
     inlines = [ProfileImageInline]
 
     def average_rating(self, obj):
         result = obj.ratings.aggregate(avg=Avg('rating'))
         return round(result['avg'] or 0, 2)
     average_rating.short_description = 'Avg Rating'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('bulk-add-tag/', self.admin_site.admin_view(self.bulk_add_tag_view), name='bulk-add-tag'),
+        ]
+        return custom_urls + urls
+
+    def bulk_add_tag(self, request, queryset):
+        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        return redirect(f'bulk-add-tag/?ids={",".join(selected)}')
+
+    bulk_add_tag.short_description = "Add a tag to selected profiles"
+
+    def bulk_add_tag_view(self, request):
+        ids = request.GET.get('ids', '')
+        profile_ids = ids.split(',')
+        if request.method == 'POST':
+            form = TagForm(request.POST)
+            if form.is_valid():
+                tag = form.cleaned_data['tag_name']
+                profiles = Profile.objects.filter(id__in=profile_ids)
+                for profile in profiles:
+                    profile.tags.add(tag)
+                self.message_user(request, f"Added tag '{tag}' to {profiles.count()} profiles.")
+                return redirect('..')
+        else:
+            form = TagForm(initial={'_selected_action': profile_ids})
+        return render(request, 'admin/bulk_add_tag.html', {'form': form, 'profile_ids': profile_ids})
 
 # ---------- Custom Admin Site ----------
 class CustomAdminSite(admin.AdminSite):

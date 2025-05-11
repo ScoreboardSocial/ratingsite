@@ -1,0 +1,8 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h1>Apply Tag to Selected Profiles</h1>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Apply Tag" class="button default">
+  </form>
+{% endblock %}
