@@ -1,3 +1,4 @@
+from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -65,7 +66,7 @@ class ProfileAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def bulk_add_tag(self, request, queryset):
-        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        selected = request.POST.getlist(ACTION_CHECKBOX_NAME)
         return redirect(f'bulk-add-tag/?ids={",".join(selected)}')
 
     bulk_add_tag.short_description = "Add a tag to selected profiles"
