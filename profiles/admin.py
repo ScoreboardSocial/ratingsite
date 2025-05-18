@@ -37,7 +37,11 @@ export_profiles_csv.short_description = "Export selected profiles to CSV"
 # ---------- Bulk Tag Form ----------
 class TagForm(forms.Form):
     _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
-    tag_name = forms.CharField(label="Tag to apply", max_length=50)
+    tag_names = forms.CharField(  # <-- changed from tag_name to tag_names
+        label="Tags to apply (comma-separated)",
+        help_text="e.g. athlete, verified, trending",
+        max_length=255
+    )
 
 # ---------- Profile Image Inline ----------
 class ProfileImageInline(admin.TabularInline):
@@ -74,18 +78,32 @@ class ProfileAdmin(admin.ModelAdmin):
     def bulk_add_tag_view(self, request):
         ids = request.GET.get('ids', '')
         profile_ids = ids.split(',')
+
         if request.method == 'POST':
             form = TagForm(request.POST)
             if form.is_valid():
-                tag = form.cleaned_data['tag_name']
+                tag_input = form.cleaned_data['tag_names']
+                tag_list = [tag.strip() for tag in tag_input.split(',') if tag.strip()]
+
                 profiles = Profile.objects.filter(id__in=profile_ids)
+
                 for profile in profiles:
-                    profile.tags.add(tag)
-                self.message_user(request, f"Added tag '{tag}' to {profiles.count()} profiles.")
+                    for tag in tag_list:
+                        tag_obj, _ = Tag.objects.get_or_create(name=tag)
+                        profile.tags.add(tag_obj)
+
+                self.message_user(
+                    request,
+                    f"✅ Added {len(tag_list)} tag(s) to {profiles.count()} profile(s): {', '.join(tag_list)}"
+                )
                 return redirect('..')
         else:
             form = TagForm(initial={'_selected_action': profile_ids})
-        return render(request, 'admin/bulk_add_tag.html', {'form': form, 'profile_ids': profile_ids})
+
+        return render(request, 'admin/bulk_add_tag.html', {
+            'form': form,
+            'profile_ids': profile_ids
+        })
 
 # ---------- Custom Admin Site ----------
 class CustomAdminSite(admin.AdminSite):
