@@ -96,10 +96,8 @@ def profile_list(request):
         profiles = profiles.order_by('avg_rating')
     elif sort == 'new':
         profiles = profiles.order_by('-created_at')
-    elif shuffle:
-        profiles = profiles.order_by('?')
     else:
-        profiles = profiles.order_by('id')
+        profiles = profiles.order_by('?')
 
     paginator = Paginator(profiles, 12)
     page_number = request.GET.get('page')
