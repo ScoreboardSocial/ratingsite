@@ -105,6 +105,44 @@ class ProfileAdmin(admin.ModelAdmin):
             'profile_ids': profile_ids
         })
 
+# ----- BULK REMOVE TAG -----
+    def bulk_remove_tag(self, request, queryset):
+        selected = request.POST.getlist(ACTION_CHECKBOX_NAME)
+        return redirect(f'remove-tag/?ids={",".join(selected)}')
+    bulk_remove_tag.short_description = "Remove a tag from selected profiles"
+
+    def remove_tag_view(self, request):
+        ids = request.GET.get('ids', '')
+        profile_ids = ids.split(',')
+
+        if request.method == 'POST':
+            form = TagForm(request.POST)
+            if form.is_valid():
+                tag_input = form.cleaned_data['tag_names']
+                tag_list = [tag.strip() for tag in tag_input.split(',') if tag.strip()]
+                profiles = Profile.objects.filter(id__in=profile_ids)
+
+                for profile in profiles:
+                    for tag in tag_list:
+                        try:
+                            tag_obj = Tag.objects.get(name=tag)
+                            profile.tags.remove(tag_obj)
+                        except Tag.DoesNotExist:
+                            continue
+
+                self.message_user(
+                    request,
+                    f"🗑️ Removed {len(tag_list)} tag(s) from {profiles.count()} profile(s): {', '.join(tag_list)}"
+                )
+                return redirect('..')
+        else:
+            form = TagForm(initial={'_selected_action': profile_ids})
+
+        return render(request, 'admin/bulk_remove_tag.html', {
+            'form': form,
+            'profile_ids': profile_ids
+        })
+
 # ---------- Custom Admin Site ----------
 class CustomAdminSite(admin.AdminSite):
     site_header = 'Scoreboard Social Admin'

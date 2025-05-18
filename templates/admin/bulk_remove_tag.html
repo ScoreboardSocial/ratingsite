@@ -1,0 +1,8 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h1>Remove Tag(s) from Selected Profiles</h1>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Remove Tags" class="button default">
+  </form>
+{% endblock %}
