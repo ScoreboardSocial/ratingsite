@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block content %}
-<h1 class="mb-4">Profile List</h1>
 
 {% if featured_profile %}
 <div class="row justify-content-center mb-4">
@@ -44,6 +43,30 @@
         <a href="{% url 'signup' %}" class="btn btn-varsity w-100 mt-2">Create Account</a>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Centered Newest Profiles Carousel -->
+<div class="container mb-5">
+  <h4 class="text-center mb-3">🆕 New Profiles!</h4>
+  <div class="row justify-content-center g-4">
+    {% for profile in newest_profiles|slice:":6" %}
+      <div class="col-6 col-sm-4 col-md-2">
+        <div class="card shadow-sm text-center h-100">
+          <a href="{% url 'profile_detail' profile.id %}" class="text-decoration-none text-dark">
+            {% if profile.image %}
+              <img src="{{ profile.image.url }}" alt="{{ profile.name }}" class="rounded-circle mt-3" width="80" height="80" style="object-fit:cover; border:2px solid #ccc;">
+            {% else %}
+              <img src="{% static 'images/default_profile.jpg' %}" alt="Default Profile" class="rounded-circle mt-3" width="80" height="80" style="object-fit:cover; border:2px solid #ccc;">
+            {% endif %}
+            <div class="card-body">
+              <h6 class="card-title fw-bold mb-1">{{ profile.name|truncatechars:18 }}</h6>
+              <small class="text-muted">{{ profile.created_at|date:"M d" }}</small>
+            </div>
+          </a>
+        </div>
+      </div>
+    {% endfor %}
   </div>
 </div>
 {% endif %}

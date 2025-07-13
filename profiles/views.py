@@ -23,7 +23,6 @@ User = get_user_model()
 def vote_fan_favorite(request, profile_id):
     profile = get_object_or_404(Profile, id=profile_id)
 
-    # For anonymous users, we could check IP or session key
     session_key = request.session.session_key or request.session.save()
     already_voted = profile.fan_votes.filter(session_key=request.session.session_key).exists()
     if not already_voted:
@@ -85,6 +84,7 @@ def profile_list(request):
     tags = Tag.objects.all()
     all_profiles = list(Profile.objects.annotate(avg_rating=Avg('ratings__rating')))
     featured_profile = random.choice(all_profiles) if all_profiles else None
+    newest_profiles = Profile.objects.order_by('-created_at')[:10]
 
     dashboard_stats = {}
     if request.user.is_staff:
@@ -103,7 +103,8 @@ def profile_list(request):
         'active_tag': int(tag_id) if tag_id else None,
         'featured_profile': featured_profile,
         'query': query,
-        'dashboard_stats': dashboard_stats
+        'dashboard_stats': dashboard_stats,
+        'newest_profiles': newest_profiles,
     })
 
 
@@ -114,7 +115,6 @@ def rate_profile(request, profile_id):
         profile = get_object_or_404(Profile, id=profile_id)
         rating_value = data.get('rating')
 
-        # For anonymous users, use session_key instead of user
         session_key = request.session.session_key or request.session.save()
 
         Rating.objects.update_or_create(
@@ -145,7 +145,7 @@ def profile_detail(request, profile_id):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.profile = profile
-            comment.session_key = request.session.session_key  # Associate with session
+            comment.session_key = request.session.session_key
             if request.user.is_authenticated:
                 comment.user = request.user
             comment.save()
@@ -171,20 +171,22 @@ def leaderboard(request):
     most_commented = Profile.objects.annotate(comment_count=Count('comments')).order_by('-comment_count')[:10]
     most_influential = sorted(Profile.objects.all(), key=lambda p: p.influence_score, reverse=True)[:10]
     most_viewed = Profile.objects.order_by('-views')[:10]
-    fan_favorites = Profile.objects.annotate(fan_vote_count=Count('fan_votes')).order_by('-fan_vote_count')[:10]
-
+    fan_favorites = Profile.objects.annotate(fan_votes_count=Count('fan_votes')).order_by('-fan_votes_count')[:10]
     recently_trending = Profile.objects.order_by('-created_at')[:10]
-    rising_stars = Profile.objects.annotate(total_ratings=Count('ratings')).order_by('total_ratings', '-created_at')[
-                   :10]
+    rising_stars = Profile.objects.annotate(total_ratings=Count('ratings')).order_by('total_ratings', '-created_at')[:10]
     most_feedback_given = User.objects.annotate(comment_count=Count('comment')).order_by('-comment_count')[:10]
 
+    leaderboard_sections = [
+        ("Top Rated", top_rated, "avg_rating", "primary", "/5"),
+        ("Most Commented", most_commented, "comment_count", "success", ""),
+        ("Most Viewed", most_viewed, "views", "info", ""),
+        ("Fan Favorites", fan_favorites, "fan_votes_count", "danger", ""),
+        ("Influence Score", most_influential, "influence_score", "warning", ""),
+        ("Recently Trending", recently_trending, "avg_rating", "secondary", "/5"),
+        ("Rising Stars", rising_stars, "avg_rating", "info", "/5"),
+        ("Most Feedback Given", most_feedback_given, None, "warning-subtle", " comments")
+    ]
+
     return render(request, 'profiles/leaderboard.html', {
-        'top_rated': top_rated,
-        'most_commented': most_commented,
-        'most_influential': most_influential,
-        'most_viewed': most_viewed,
-        'fan_favorites': fan_favorites,
-        'recently_trending': recently_trending,
-        'rising_stars': rising_stars,
-        'most_feedback_given': most_feedback_given,
+        'leaderboard_sections': leaderboard_sections
     })

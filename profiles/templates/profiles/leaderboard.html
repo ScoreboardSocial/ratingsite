@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load custom_tags %}
+
 {% block content %}
 <div class="container py-4">
   <h1 class="mb-4">🏆 Leaderboard</h1>
@@ -13,70 +15,66 @@
             <li><strong>⭐ Top Rated</strong>: Profiles with the highest average user ratings.</li>
             <li><strong>💬 Most Commented</strong>: Profiles with the most user comments.</li>
             <li><strong>👁️ Most Viewed</strong>: Profiles with the most page views.</li>
-            <li><strong>❤️ Fan Favorites</strong>: Most "Fan Favorite" votes (anonymous & logged-in).</li>
-            <li><strong>🌟 Influence Score</strong>: Weighted mix of ratings, votes, and comments.</li>
-            <li><strong>🔥 Recently Trending</strong>: Most recent profiles gaining attention.</li>
-            <li><strong>📈 Rising Stars</strong>: Newer profiles with growing engagement.</li>
-            <li><strong>🗣️ Most Feedback Given</strong>: Top commenters (guest or user).</li>
+            <li><strong>❤️ Fan Favorites</strong>: Profiles that received the most "Fan Favorite" votes.</li>
+            <li><strong>🌟 Influence Score</strong>: Combines ratings, votes, and comments into a weighted score.</li>
+            <li><strong>🔥 Recently Trending</strong>: Profiles created most recently and gaining attention.</li>
+            <li><strong>📈 Rising Stars</strong>: Newer profiles starting to collect solid engagement.</li>
+            <li><strong>🗣️ Most Feedback Given</strong>: Users who have commented the most across profiles.</li>
           </ul>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Leaderboard Cards -->
   <div class="row row-cols-1 row-cols-md-2 g-4">
-    {% for section in [
-      ("Top Rated", top_rated, "avg_rating", "primary", "floatformat:2", "/5"),
-      ("Most Commented", most_commented, "comment_count", "success", "", " comments"),
-      ("Most Viewed", most_viewed, "views", "info text-dark", "", " views"),
-      ("Fan Favorites", fan_favorites, "fan_votes.count", "danger", "", " votes"),
-      ("Influence Score", most_influential, "influence_score", "warning text-dark", "", " pts"),
-      ("Recently Trending", recently_trending, None, "secondary", "", "New"),
-      ("Rising Stars", rising_stars, "avg_rating", "info text-dark", "floatformat:2", "/5")
-    ] %}
+    {% for section in leaderboard_sections %}
       <div class="col">
-        <div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0 three-d-card">
           <div class="card-body">
             <h5 class="card-title">
-              {% if section.0 == "Top Rated" %}⭐{% elif section.0 == "Most Commented" %}💬{% elif section.0 == "Most Viewed" %}👁️{% elif section.0 == "Fan Favorites" %}❤️{% elif section.0 == "Influence Score" %}🌟{% elif section.0 == "Recently Trending" %}🔥{% elif section.0 == "Rising Stars" %}📈{% endif %}
+              {% if section.0 == "Top Rated" %}⭐
+              {% elif section.0 == "Most Commented" %}💬
+              {% elif section.0 == "Most Viewed" %}👁️
+              {% elif section.0 == "Fan Favorites" %}❤️
+              {% elif section.0 == "Influence Score" %}🌟
+              {% elif section.0 == "Recently Trending" %}🔥
+              {% elif section.0 == "Rising Stars" %}📈
+              {% endif %}
               {{ section.0 }}
             </h5>
+
+            {% if section.1 and section.2 %}
+              <div class="mb-3 px-3 py-2 bg-light rounded d-flex justify-content-between align-items-center">
+                <span class="fw-bold">
+                  🥇 <a href="{% url 'profile_detail' section.1.0.id %}">{{ section.1.0.name }}</a>
+                </span>
+                <span class="badge bg-{{ section.3 }}">
+                  {{ section.1.0|attr:section.2|default:"0"|floatformat:2 }}{{ section.5 }}
+                </span>
+              </div>
+            {% endif %}
+
             <ul class="list-unstyled mb-0">
               {% for profile in section.1 %}
                 <li class="d-flex justify-content-between">
                   <a href="{% url 'profile_detail' profile.id %}">{{ profile.name }}</a>
                   {% if section.2 %}
                     <span class="badge bg-{{ section.3 }}">
-                      {{ profile|dict_key:section.2|default:"0"|floatformat:2 }}{{ section.5 }}
+                      {{ profile|attr:section.2|default:"0"|floatformat:2 }}{{ section.5 }}
                     </span>
                   {% else %}
                     <span class="badge bg-{{ section.3 }}">{{ section.5 }}</span>
                   {% endif %}
                 </li>
-              {% empty %}<li>No data yet.</li>{% endfor %}
+              {% empty %}
+                <li>No data yet.</li>
+              {% endfor %}
             </ul>
           </div>
         </div>
       </div>
     {% endfor %}
-
-    <!-- Most Feedback Given (user list) -->
-    <div class="col">
-      <div class="card shadow-sm border-0 three-d-card">
-        <div class="card-body">
-          <h5 class="card-title">🗣️ Most Feedback Given</h5>
-          <ul class="list-unstyled mb-0">
-            {% for user in most_feedback_given %}
-              <li class="d-flex justify-content-between">
-                <span>{{ user.username|default:"Anonymous" }}</span>
-                <span class="badge bg-warning-subtle text-dark fw-bold">{{ user.comment_count }} comments</span>
-              </li>
-            {% empty %}<li>No feedback yet.</li>{% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 {% endblock %}
