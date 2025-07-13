@@ -3,11 +3,19 @@
 {% block content %}
 <div class="container py-4">
   <h3>Edit Comment</h3>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Update</button>
-    <a href="{% url 'profile_detail' comment.profile.pk %}" class="btn btn-secondary">Cancel</a>
-  </form>
+
+  {% if comment.user %}
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-success">Update</button>
+      <a href="{% url 'profile_detail' comment.profile.pk %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  {% else %}
+    <div class="alert alert-warning">
+      <strong>Heads up:</strong> Guest comments can't be edited. Only users with accounts can edit their own comments.
+    </div>
+    <a href="{% url 'profile_detail' comment.profile.pk %}" class="btn btn-primary">Back to Profile</a>
+  {% endif %}
 </div>
 {% endblock %}

@@ -172,14 +172,13 @@
               User Rating: <span id="rating-{{ profile.id }}">{{ profile.avg_rating|default:0|floatformat:2 }}</span>/5
               (<span id="total-votes-{{ profile.id }}">{{ profile.total_ratings }}</span> votes)
             </p>
-            <p>
-              <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
-            </p>
+            <p><span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span></p>
             <div class="rating-stars mb-2" data-profile="{{ profile.id }}">
               {% for i in "12345" %}
                 <span class="star {% if profile.avg_rating|default:0 >= i %}selected{% endif %}" data-value="{{ i }}">★</span>
               {% endfor %}
             </div>
+            <p class="text-muted small">Click to rate (no login required)</p>
             <p id="rating-message-{{ profile.id }}" class="text-success mt-2 small"></p>
             {% if profile.tags.all %}
               <p>
@@ -226,6 +225,7 @@
 {% else %}
   <p>No profiles found.</p>
 {% endif %}
+
 <style>
   .star {
     font-size: 24px;
@@ -233,15 +233,14 @@
     color: gray;
     transition: color 0.2s;
   }
-
   .star.hovered {
     color: orange;
   }
-
   .star.selected {
     color: gold;
   }
 </style>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   $(document).ready(function () {
@@ -254,12 +253,12 @@
     });
 
     $(document).on("mouseleave", ".star", function () {
-      $(".star").removeClass("hovered");
+      $(this).siblings().addBack().removeClass("hovered");
     });
 
     $(document).on("click", ".star", function () {
       const rating = $(this).data("value");
-      const profileId = $(this).parent().data("profile");
+      const profileId = $(this).closest('.rating-stars').data("profile");
 
       $.ajax({
         url: `/profiles/${profileId}/rate/`,
@@ -277,10 +276,11 @@
           });
         },
         error: function () {
-          $(`#rating-message-${profileId}`).text(`Error: You must be logged in to rate.`);
+          $(`#rating-message-${profileId}`).text(`There was an error saving your rating. Please try again.`);
         }
       });
     });
   });
 </script>
 {% endblock %}
+

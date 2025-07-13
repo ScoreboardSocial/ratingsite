@@ -40,35 +40,44 @@ class Profile(models.Model):
         return self.name
 
 class FanFavoriteVote(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
     profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='fan_votes')
     voted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'profile')  # one vote per user per profile
+        unique_together = (('user', 'profile'), ('session_key', 'profile'))
         ordering = ['-voted_at']
 
     def __str__(self):
-        return f"{self.user.username} voted for {self.profile.name}"
+        if self.user:
+            return f"{self.user.username} voted for {self.profile.name}"
+        return f"Anonymous vote for {self.profile.name}"
 
 class Rating(models.Model):
     profile = models.ForeignKey(Profile, related_name='ratings', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
     rating = models.DecimalField(max_digits=3, decimal_places=2, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        unique_together = (('user', 'profile'), ('session_key', 'profile'))
 
     def __str__(self):
         return f"{self.profile.name} - {self.rating}"
 
 class Comment(models.Model):
     profile = models.ForeignKey(Profile, related_name='comments', on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
     content = models.TextField()
-    text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Comment by {self.user.username} on {self.profile.name}'
+        if self.user:
+            return f'Comment by {self.user.username} on {self.profile.name}'
+        return f'Anonymous comment on {self.profile.name}'
 
 class ProfileImage(models.Model):
     profile = models.ForeignKey(Profile, related_name='images', on_delete=models.CASCADE)

@@ -37,7 +37,7 @@ export_profiles_csv.short_description = "Export selected profiles to CSV"
 # ---------- Bulk Tag Form ----------
 class TagForm(forms.Form):
     _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
-    tag_names = forms.CharField(  # <-- changed from tag_name to tag_names
+    tag_names = forms.CharField(
         label="Tags to apply (comma-separated)",
         help_text="e.g. athlete, verified, trending",
         max_length=255
@@ -66,6 +66,7 @@ class ProfileAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('bulk-add-tag/', self.admin_site.admin_view(self.bulk_add_tag_view), name='bulk-add-tag'),
+            path('remove-tag/', self.admin_site.admin_view(self.remove_tag_view), name='remove-tag'),
         ]
         return custom_urls + urls
 
@@ -84,7 +85,6 @@ class ProfileAdmin(admin.ModelAdmin):
             if form.is_valid():
                 tag_input = form.cleaned_data['tag_names']
                 tag_list = [tag.strip() for tag in tag_input.split(',') if tag.strip()]
-
                 profiles = Profile.objects.filter(id__in=profile_ids)
 
                 for profile in profiles:
@@ -105,10 +105,10 @@ class ProfileAdmin(admin.ModelAdmin):
             'profile_ids': profile_ids
         })
 
-# ----- BULK REMOVE TAG -----
     def bulk_remove_tag(self, request, queryset):
         selected = request.POST.getlist(ACTION_CHECKBOX_NAME)
         return redirect(f'remove-tag/?ids={",".join(selected)}')
+
     bulk_remove_tag.short_description = "Remove a tag from selected profiles"
 
     def remove_tag_view(self, request):
@@ -142,6 +142,37 @@ class ProfileAdmin(admin.ModelAdmin):
             'form': form,
             'profile_ids': profile_ids
         })
+
+# ---------- Rating Admin ----------
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ['profile', 'rating', 'user_or_session', 'created_at']
+    search_fields = ['profile__name', 'user__username', 'session_key']
+
+    def user_or_session(self, obj):
+        return obj.user.username if obj.user else f"Anon: {obj.session_key}"
+    user_or_session.short_description = "Submitted By"
+
+# ---------- Comment Admin ----------
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['profile', 'short_content', 'user_or_session', 'created_at']
+    search_fields = ['profile__name', 'user__username', 'session_key', 'content']
+
+    def short_content(self, obj):
+        return obj.content[:50]
+    short_content.short_description = "Comment"
+
+    def user_or_session(self, obj):
+        return obj.user.username if obj.user else f"Anon: {obj.session_key}"
+    user_or_session.short_description = "Submitted By"
+
+# ---------- Fan Favorite Vote Admin ----------
+class FanFavoriteVoteAdmin(admin.ModelAdmin):
+    list_display = ['profile', 'user_or_session', 'voted_at']
+    search_fields = ['profile__name', 'user__username', 'session_key']
+
+    def user_or_session(self, obj):
+        return obj.user.username if obj.user else f"Anon: {obj.session_key}"
+    user_or_session.short_description = "Submitted By"
 
 # ---------- Custom Admin Site ----------
 class CustomAdminSite(admin.AdminSite):
@@ -205,9 +236,9 @@ class CustomUserAdmin(BaseUserAdmin):
 # ---------- Register Models ----------
 admin_site = CustomAdminSite(name='scoreboard_admin')
 admin_site.register(Profile, ProfileAdmin)
-admin_site.register(Rating)
+admin_site.register(Rating, RatingAdmin)
 admin_site.register(Tag)
-admin_site.register(Comment)
+admin_site.register(Comment, CommentAdmin)
 admin_site.register(ProfileImage)
-admin_site.register(FanFavoriteVote)
+admin_site.register(FanFavoriteVote, FanFavoriteVoteAdmin)
 admin_site.register(User, CustomUserAdmin)

@@ -8,10 +8,19 @@
 
       <div class="card shadow-lg border-0 three-d-card">
         <div class="card-header text-white" style="background-color: #52154E;">
-          <h3 class="mb-0">🏅 Create Your Account</h3>
+          <h3 class="mb-0">🌼 Create Your Account</h3>
         </div>
         <div class="card-body" style="background-color: #FFF9F0;">
-          <p class="text-muted">Sign up to rate profiles, vote for fan favorites, and leave comments!</p>
+          <p class="text-muted">
+            <strong>Accounts are optional.</strong><br>
+            You can rate profiles, vote for fan favorites, and leave comments as a guest.
+            However, <strong>creating an account allows you to:</strong>
+          </p>
+          <ul class="text-muted">
+            <li>✅ Edit or delete your own comments</li>
+            <li>✅ Track your past ratings</li>
+            <li>✅ Get recognized on the leaderboard</li>
+          </ul>
 
           <form method="post">
             {% csrf_token %}
