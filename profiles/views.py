@@ -78,8 +78,16 @@ def profile_list(request):
         profiles = profiles.order_by('?')
 
     paginator = Paginator(profiles, 12)
-    page_number = request.GET.get('page')
+    page_number = int(request.GET.get('page', 1))
     page_obj = paginator.get_page(page_number)
+
+    # 🔹 Chunked Pagination Logic
+    total_pages = paginator.num_pages
+    pages_per_group = 20
+    current_group = (page_number - 1) // pages_per_group
+    start_page = current_group * pages_per_group + 1
+    end_page = min(start_page + pages_per_group - 1, total_pages)
+    page_range = range(start_page, end_page + 1)
 
     tags = Tag.objects.all()
     all_profiles = list(Profile.objects.annotate(avg_rating=Avg('ratings__rating')))
@@ -98,6 +106,10 @@ def profile_list(request):
     return render(request, 'profiles/profile_list.html', {
         'profiles': page_obj,
         'page_obj': page_obj,
+        'page_range': page_range,
+        'total_pages': total_pages,
+        'current_group': current_group,
+        'pages_per_group': pages_per_group,
         'tags': tags,
         'sort': sort,
         'active_tag': int(tag_id) if tag_id else None,
@@ -106,6 +118,7 @@ def profile_list(request):
         'dashboard_stats': dashboard_stats,
         'newest_profiles': newest_profiles,
     })
+
 
 
 @csrf_exempt

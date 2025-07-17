@@ -223,28 +223,45 @@
     {% endfor %}
   </div>
 
-  <!-- Pagination -->
-  <nav class="mt-4" aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-      {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if active_tag %}&tag={{ active_tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Previous</a>
-        </li>
-      {% endif %}
+  <!-- Condensed Pagination -->
+<nav class="mt-4" aria-label="Page navigation">
+  <ul class="pagination justify-content-center flex-wrap">
 
-      {% for num in page_obj.paginator.page_range %}
-        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-          <a class="page-link" href="?page={{ num }}{% if active_tag %}&tag={{ active_tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
-        </li>
-      {% endfor %}
+    {# Prev 20 Button #}
+    {% if current_group > 0 %}
+      <li class="page-item">
+        <a class="page-link fw-bold bg-gold text-dark border-gold"
+           href="?page={{ (current_group|add:"-1")|mul:pages_per_group|add:"1" }}
+           {% if sort %}&sort={{ sort }}{% endif %}
+           {% if active_tag %}&tag={{ active_tag }}{% endif %}">
+          « Prev 20
+        </a>
+      </li>
+    {% endif %}
 
-      {% if page_obj.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if active_tag %}&tag={{ active_tag }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Next</a>
-        </li>
-      {% endif %}
-    </ul>
-  </nav>
+    {# Page Number Links #}
+    {% for num in page_range %}
+      <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+        <a class="page-link {% if page_obj.number == num %}bg-gold text-dark border-gold fw-bold{% endif %}"
+           href="?page={{ num }}{% if sort %}&sort={{ sort }}{% endif %}{% if active_tag %}&tag={{ active_tag }}{% endif %}">
+          {{ num }}
+        </a>
+      </li>
+    {% endfor %}
+
+    {# Next 20 Button #}
+    {% if page_range|last < total_pages %}
+      <li class="page-item">
+        <a class="page-link fw-bold bg-gold text-dark border-gold"
+           href="?page={{ (current_group|add:"1")|mul:pages_per_group|add:"1" }}
+           {% if sort %}&sort={{ sort }}{% endif %}
+           {% if active_tag %}&tag={{ active_tag }}{% endif %}">
+          Next 20 »
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
 {% else %}
   <p>No profiles found.</p>
 {% endif %}
