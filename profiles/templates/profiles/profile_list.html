@@ -228,12 +228,10 @@
   <ul class="pagination justify-content-center flex-wrap">
 
     {# Prev 20 Button #}
-    {% if current_group > 0 %}
+    {% if prev_chunk_page %}
       <li class="page-item">
         <a class="page-link fw-bold bg-gold text-dark border-gold"
-           href="?page={{ (current_group|add:"-1")|mul:pages_per_group|add:"1" }}
-           {% if sort %}&sort={{ sort }}{% endif %}
-           {% if active_tag %}&tag={{ active_tag }}{% endif %}">
+           href="?page={{ prev_chunk_page }}{% if sort %}&sort={{ sort }}{% endif %}{% if active_tag %}&tag={{ active_tag }}{% endif %}">
           « Prev 20
         </a>
       </li>
@@ -250,16 +248,15 @@
     {% endfor %}
 
     {# Next 20 Button #}
-    {% if page_range|last < total_pages %}
+    {% if next_chunk_page %}
       <li class="page-item">
         <a class="page-link fw-bold bg-gold text-dark border-gold"
-           href="?page={{ (current_group|add:"1")|mul:pages_per_group|add:"1" }}
-           {% if sort %}&sort={{ sort }}{% endif %}
-           {% if active_tag %}&tag={{ active_tag }}{% endif %}">
+           href="?page={{ next_chunk_page }}{% if sort %}&sort={{ sort }}{% endif %}{% if active_tag %}&tag={{ active_tag }}{% endif %}">
           Next 20 »
         </a>
       </li>
     {% endif %}
+
   </ul>
 </nav>
 {% else %}

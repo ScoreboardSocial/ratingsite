@@ -75,7 +75,7 @@ def profile_list(request):
     elif sort == 'new':
         profiles = profiles.order_by('-created_at')
     else:
-        profiles = profiles.order_by('?')
+        profiles = profiles.order_by('?') if shuffle else profiles.order_by('id')
 
     paginator = Paginator(profiles, 12)
     page_number = int(request.GET.get('page', 1))
@@ -88,6 +88,10 @@ def profile_list(request):
     start_page = current_group * pages_per_group + 1
     end_page = min(start_page + pages_per_group - 1, total_pages)
     page_range = range(start_page, end_page + 1)
+
+    # Precompute Prev/Next Chunk Start Pages
+    prev_chunk_page = (current_group - 1) * pages_per_group + 1 if current_group > 0 else None
+    next_chunk_page = (current_group + 1) * pages_per_group + 1 if end_page < total_pages else None
 
     tags = Tag.objects.all()
     all_profiles = list(Profile.objects.annotate(avg_rating=Avg('ratings__rating')))
@@ -107,17 +111,20 @@ def profile_list(request):
         'profiles': page_obj,
         'page_obj': page_obj,
         'page_range': page_range,
+        'prev_chunk_page': prev_chunk_page,
+        'next_chunk_page': next_chunk_page,
         'total_pages': total_pages,
         'current_group': current_group,
         'pages_per_group': pages_per_group,
         'tags': tags,
         'sort': sort,
         'active_tag': int(tag_id) if tag_id else None,
-        'featured_profile': featured_profile,
         'query': query,
-        'dashboard_stats': dashboard_stats,
+        'featured_profile': featured_profile,
         'newest_profiles': newest_profiles,
+        'dashboard_stats': dashboard_stats,
     })
+
 
 
 
