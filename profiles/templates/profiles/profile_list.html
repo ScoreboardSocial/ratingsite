@@ -46,6 +46,34 @@
   </div>
 </div>
 
+<!-- Leaderboard Snapshot -->
+<div class="container mt-4">
+  <h3 class="text-center mb-4 text-varsity">🏆 Leaderboard Snapshot</h3>
+  <div class="row justify-content-center g-4">
+    {% for profile in top_rated %}
+      <div class="col-6 col-md-4">
+        <div class="card text-center shadow-sm three-d-card h-100 {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
+          <div class="card-body">
+            {% if profile.image %}
+              <img src="{{ profile.image.url }}" class="rounded-circle mb-3" width="90" height="90" style="object-fit: cover;">
+            {% else %}
+              <img src="{% static 'images/default_profile.jpg' %}" class="rounded-circle mb-3" width="90" height="90" style="object-fit: cover;">
+            {% endif %}
+            <h5 class="card-title mb-1">{{ profile.name }}</h5>
+            <p class="mb-1">⭐ {{ profile.avg_rating|floatformat:2 }}/5</p>
+            <p><span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span></p>
+            <a href="{% url 'profile_detail' profile.id %}" class="btn btn-sm btn-varsity mt-2 w-100">View Profile</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'leaderboard' %}" class="btn btn-outline-primary">View Full Leaderboard</a>
+  </div>
+</div>
+
 <!-- Centered Newest Profiles Carousel -->
 <div class="container mb-5">
   <h4 class="text-center mb-3">🆕 New Profiles!</h4>

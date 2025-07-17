@@ -93,6 +93,9 @@ def profile_list(request):
     prev_chunk_page = (current_group - 1) * pages_per_group + 1 if current_group > 0 else None
     next_chunk_page = (current_group + 1) * pages_per_group + 1 if end_page < total_pages else None
 
+    # Top 3 Rated Profiles for Leaderboard Snapshot
+    top_rated = Profile.objects.annotate(avg_rating=Avg('ratings__rating')).order_by('-avg_rating')[:3]
+
     tags = Tag.objects.all()
     all_profiles = list(Profile.objects.annotate(avg_rating=Avg('ratings__rating')))
     featured_profile = random.choice(all_profiles) if all_profiles else None
@@ -122,10 +125,9 @@ def profile_list(request):
         'query': query,
         'featured_profile': featured_profile,
         'newest_profiles': newest_profiles,
+        'top_rated': top_rated,
         'dashboard_stats': dashboard_stats,
     })
-
-
 
 
 @csrf_exempt
@@ -211,13 +213,4 @@ def leaderboard(request):
         'leaderboard_sections': leaderboard_sections
     })
 
-
-def home(request):
-    top_rated = Profile.objects.annotate(avg_rating=Avg('ratings__rating')).order_by('-avg_rating')[:3]
-    newest_profiles = Profile.objects.order_by('-created_at')[:6]
-
-    return render(request, 'profiles/home.html', {
-        'top_rated': top_rated,
-        'newest_profiles': newest_profiles,
-    })
 
