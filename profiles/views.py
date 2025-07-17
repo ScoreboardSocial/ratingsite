@@ -216,7 +216,7 @@ def home(request):
     top_rated = Profile.objects.annotate(avg_rating=Avg('ratings__rating')).order_by('-avg_rating')[:3]
     newest_profiles = Profile.objects.order_by('-created_at')[:6]
 
-    return render(request, 'home.html', {
+    return render(request, 'profiles/home.html', {
         'top_rated': top_rated,
         'newest_profiles': newest_profiles,
     })
