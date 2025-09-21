@@ -5,10 +5,16 @@
 
 {% if featured_profile %}
 <div class="row justify-content-center mb-4">
-  <!-- Featured (Spotlight style) -->
+  <!-- Featured (Spotlight style with background image + gradient) -->
   <div class="col-12 col-md-7 mx-2">
-    <div class="card spotlight-card shadow-lg h-100 three-d-card gold-glow">
-      <div class="row g-0 h-100">
+    <div class="card spotlight-card bg-card text-white shadow-lg h-100 three-d-card gold-glow">
+      {% if featured_profile.image %}
+        <div class="card-bg" style="background-image: url('{{ featured_profile.image.url }}');"></div>
+      {% else %}
+        <div class="card-bg" style="background-image: url('{% static 'images/default_profile.jpg' %}');"></div>
+      {% endif %}
+
+      <div class="row g-0 h-100 position-relative">
         <!-- Image + Rating -->
         <div class="col-4 p-4 text-center align-self-center">
           {% if featured_profile.image %}
@@ -30,7 +36,7 @@
           </div>
 
           {% if featured_profile.bio %}
-            <p class="small text-muted mb-2">{{ featured_profile.bio|truncatechars:110 }}</p>
+            <p class="small text-white-50 mb-2">{{ featured_profile.bio|truncatechars:110 }}</p>
           {% endif %}
 
           <!-- Social -->
@@ -50,8 +56,8 @@
             {% endfor %}
           </div>
           <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted">Click to rate (no login required)</small>
-            <small class="text-muted">Rated by <span id="total-votes-{{ featured_profile.id }}">{{ featured_profile.total_ratings }}</span></small>
+            <small class="text-white-50">Click to rate (no login required)</small>
+            <small class="text-white-50">Rated by <span id="total-votes-{{ featured_profile.id }}">{{ featured_profile.total_ratings }}</span></small>
           </div>
           <p id="rating-message-{{ featured_profile.id }}" class="text-success mt-1 small"></p>
 
@@ -109,9 +115,15 @@
   <div class="row justify-content-center g-3">
     {% for profile in top_rated %}
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card spotlight-card spotlight-mini shadow-sm h-100 three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
-          <div class="row g-0 align-items-center">
-            <!-- Image -->
+        <div class="card spotlight-card bg-card text-white spotlight-mini shadow-sm h-100 three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
+          {% if profile.image %}
+            <div class="card-bg" style="background-image: url('{{ profile.image.url }}');"></div>
+          {% else %}
+            <div class="card-bg" style="background-image: url('{% static 'images/default_profile.jpg' %}');"></div>
+          {% endif %}
+
+          <div class="row g-0 align-items-center position-relative">
+            <!-- Optional avatar overlay for identity -->
             <div class="col-4 p-3 text-center">
               {% if profile.image %}
                 <img src="{{ profile.image.url }}" class="img-fluid rounded-circle shadow avatar-mini" alt="{{ profile.name }}">
@@ -121,14 +133,13 @@
               <div><span class="rating-chip rating-chip-mini">⭐ {{ profile.avg_rating|default:0|floatformat:1 }}</span></div>
             </div>
 
-            <!-- Details -->
             <div class="col-8 p-3">
-              <h6 class="fw-bold mb-1 name">{{ profile.name }}</h6>
+              <h6 class="fw-bold mb-1 name text-white">{{ profile.name }}</h6>
               <p class="mb-2">
                 <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
               </p>
               <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">Rated by {{ profile.total_ratings }}</small>
+                <small class="text-white-50">Rated by {{ profile.total_ratings }}</small>
                 <a href="{% url 'profile_detail' profile.id %}" class="btn btn-sm btn-varsity">View</a>
               </div>
             </div>
@@ -151,8 +162,14 @@
   <div class="hscroll-shelf d-md-none">
     {% for profile in newest_profiles|slice:":6" %}
       <a href="{% url 'profile_detail' profile.id %}" class="text-decoration-none text-dark">
-        <div class="card spotlight-card spotlight-tiny shadow-sm three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
-          <div class="row g-0 align-items-center">
+        <div class="card spotlight-card bg-card text-white spotlight-tiny shadow-sm three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
+          {% if profile.image %}
+            <div class="card-bg" style="background-image: url('{{ profile.image.url }}');"></div>
+          {% else %}
+            <div class="card-bg" style="background-image: url('{% static 'images/default_profile.jpg' %}');"></div>
+          {% endif %}
+
+          <div class="row g-0 align-items-center position-relative">
             <!-- Avatar + Rating -->
             <div class="col-4 p-2 text-center">
               {% if profile.image %}
@@ -166,10 +183,10 @@
             <!-- Name + Meta -->
             <div class="col-8 p-2">
               <div class="d-flex align-items-center gap-2 mb-1">
-                <h6 class="fw-bold mb-0 name">{{ profile.name|truncatechars:28 }}</h6>
+                <h6 class="fw-bold mb-0 name text-white">{{ profile.name|truncatechars:28 }}</h6>
                 <span class="badge bg-light text-dark border">New</span>
               </div>
-              <small class="text-muted d-block mb-2">Joined {{ profile.created_at|date:"M d" }}</small>
+              <small class="text-white-50 d-block mb-2">Joined {{ profile.created_at|date:"M d" }}</small>
 
               <div class="d-flex justify-content-between align-items-center">
                 <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
@@ -186,8 +203,14 @@
   <div class="row justify-content-center g-3 d-none d-md-flex">
     {% for profile in newest_profiles|slice:":6" %}
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card spotlight-card spotlight-tiny shadow-sm h-100 three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
-          <div class="row g-0 align-items-center">
+        <div class="card spotlight-card bg-card text-white spotlight-tiny shadow-sm h-100 three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
+          {% if profile.image %}
+            <div class="card-bg" style="background-image: url('{{ profile.image.url }}');"></div>
+          {% else %}
+            <div class="card-bg" style="background-image: url('{% static 'images/default_profile.jpg' %}');"></div>
+          {% endif %}
+
+          <div class="row g-0 align-items-center position-relative">
             <div class="col-3 p-2 text-center">
               {% if profile.image %}
                 <img src="{{ profile.image.url }}" class="img-fluid rounded-circle shadow avatar-tiny" alt="{{ profile.name }}">
@@ -198,10 +221,10 @@
             </div>
             <div class="col-9 p-2">
               <div class="d-flex align-items-center gap-2 mb-1">
-                <h6 class="fw-bold mb-0 name">{{ profile.name|truncatechars:28 }}</h6>
+                <h6 class="fw-bold mb-0 name text-white">{{ profile.name|truncatechars:28 }}</h6>
                 <span class="badge bg-light text-dark border">New</span>
               </div>
-              <small class="text-muted d-block mb-2">Joined {{ profile.created_at|date:"M d" }}</small>
+              <small class="text-white-50 d-block mb-2">Joined {{ profile.created_at|date:"M d" }}</small>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
                 <a href="{% url 'profile_detail' profile.id %}" class="btn btn-sm btn-varsity">View</a>
@@ -213,45 +236,6 @@
     {% endfor %}
   </div>
 </div>
-
-<!-- Admin Dashboard Stats -->
-{% if user.is_staff %}
-<div class="row justify-content-center mb-4">
-  <div class="col-12 col-lg-10">
-    <div class="card shadow-sm three-d-card bg-light">
-      <div class="card-body">
-        <h4 class="card-title">📊 Admin Dashboard Stats</h4>
-        <div class="row row-cols-2 row-cols-md-4 g-4 mt-3">
-          <div class="col">
-            <div class="p-3 border rounded text-center">
-              <h5>Total Users</h5>
-              <strong>{{ total_users }}</strong>
-            </div>
-          </div>
-          <div class="col">
-            <div class="p-3 border rounded text-center">
-              <h5>Profiles Rated</h5>
-              <strong>{{ profiles_rated }}</strong>
-            </div>
-          </div>
-          <div class="col">
-            <div class="p-3 border rounded text-center">
-              <h5>Total Ratings</h5>
-              <strong>{{ total_ratings }}</strong>
-            </div>
-          </div>
-          <div class="col">
-            <div class="p-3 border rounded text-center">
-              <h5>Total Comments</h5>
-              <strong>{{ total_comments }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
 
 <form method="get" class="mb-4 d-flex" role="search">
   <input type="text" name="q" class="form-control me-2" placeholder="Search profiles..." value="{{ query|default_if_none:'' }}">
@@ -294,6 +278,43 @@
   }
   .text-varsity { color: var(--varsity-purple); }
 
+  /* ----- Background image card (overlay + gradient) ----- */
+  .card.bg-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    color: #fff;
+    background: transparent;
+  }
+  .card.bg-card .card-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.6);
+    transform: scale(1);
+    transition: transform .4s ease;
+    z-index: 0;
+  }
+  .card.bg-card .card-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(26, 31, 113, 0.7),
+      rgba(0, 0, 0, 0.3) 40%,
+      rgba(0, 0, 0, 0) 70%
+    );
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .card.bg-card:hover .card-bg { transform: scale(1.05); }
+  .card.bg-card .card-body,
+  .card.bg-card .row { position: relative; z-index: 2; }
+  .spotlight-card.bg-card { background: transparent; }
+
   /* ----- SPOTLIGHT CARD (full) ----- */
   .spotlight-card { background-color: var(--varsity-cream); border: 0; }
   .spotlight-card .avatar { width:100px; height:100px; object-fit:cover; border: 3px solid var(--varsity-gold); }
@@ -302,8 +323,8 @@
     background-color: var(--varsity-gold); color: var(--varsity-purple);
     font-weight:bold; border-radius:999px; padding:.2rem .6rem;
   }
-  .spotlight-card .name { color: var(--varsity-purple); }
-  .spotlight-card .social a { color: var(--varsity-purple); }
+  .spotlight-card .name { color: inherit; }
+  .spotlight-card .social a { color: #fff; }
   .spotlight-card .social a:hover { opacity:.85; }
 
   /* ----- SPOTLIGHT MINI (Leaderboard Snapshot) ----- */
@@ -320,12 +341,12 @@
     overflow-x: auto;
     gap: 12px;
     padding: 4px 12px 12px;
-    margin: 0 -12px;               /* edge-to-edge feel */
+    margin: 0 -12px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
   }
   .hscroll-shelf > a,
-  .hscroll-shelf > .card {         /* allow either wrapped in <a> or raw card */
+  .hscroll-shelf > .card {
     min-width: 85%;
     scroll-snap-align: start;
     text-decoration: none;
@@ -361,12 +382,18 @@
 <form id="csrf-form">{% csrf_token %}</form>
 
 {% if profiles %}
-  {# Spotlight grid: two-up on md+ screens #}
+  {# Spotlight grid: two-up on md+ screens (image background cards) #}
   <div class="row row-cols-1 row-cols-md-2 g-4">
     {% for profile in profiles %}
       <div class="col">
-        <div class="card spotlight-card shadow-lg h-100 three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
-          <div class="row g-0 h-100">
+        <div class="card spotlight-card bg-card text-white shadow-lg h-100 three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
+          {% if profile.image %}
+            <div class="card-bg" style="background-image: url('{{ profile.image.url }}');"></div>
+          {% else %}
+            <div class="card-bg" style="background-image: url('{% static 'images/default_profile.jpg' %}');"></div>
+          {% endif %}
+
+          <div class="row g-0 h-100 position-relative">
             <!-- Image / Rating -->
             <div class="col-4 p-3 text-center align-self-center">
               {% if profile.image %}
@@ -382,7 +409,7 @@
               <h5 class="fw-bold mb-1 name">{{ profile.name }}</h5>
 
               {% if profile.bio %}
-                <p class="small text-muted mb-2">{{ profile.bio|truncatechars:80 }}</p>
+                <p class="small text-white-50 mb-2">{{ profile.bio|truncatechars:80 }}</p>
               {% endif %}
 
               <div class="mb-2 social">
@@ -401,8 +428,8 @@
                 {% endfor %}
               </div>
               <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">Click to rate (no login required)</small>
-                <small class="text-muted">Rated by <span id="total-votes-{{ profile.id }}">{{ profile.total_ratings }}</span></small>
+                <small class="text-white-50">Click to rate (no login required)</small>
+                <small class="text-white-50">Rated by <span id="total-votes-{{ profile.id }}">{{ profile.total_ratings }}</span></small>
               </div>
               <p id="rating-message-{{ profile.id }}" class="text-success mt-1 small"></p>
 
@@ -501,7 +528,7 @@
         success: function (response) {
           $(`#rating-message-${profileId}`).text(`You rated this profile ${rating} stars!`);
 
-          // Update rating chip (1 decimal) and vote count within the same card
+          // Update rating chip and vote count
           const avg = parseFloat(response.new_rating).toFixed(1);
           starsWrap.closest('.spotlight-card').find('.rating-chip').text(`⭐ ${avg}`);
           $(`#total-votes-${profileId}`).text(response.total_votes);
