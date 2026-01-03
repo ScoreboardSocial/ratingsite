@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🌟 Scoreboard Social</title>
+  <title>SCOREBOARD SOCIAL</title>
   <link rel="icon" href="{% static 'images/favicon.ico' %}" />
 
   <!-- Bootstrap & FontAwesome -->
@@ -148,12 +148,12 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container position-relative">
-      <a class="navbar-brand fw-bold" href="{% url 'profile_list' %}">Scoreboard Social</a>
+      <a class="navbar-brand fw-bold" href="{% url 'profile_list' %}">SCOREBOARD SOCIAL</a>
 
       <!-- Centered Leaderboard (lg+) -->
       <div class="d-none d-lg-block center-slot">
         <a class="nav-link text-white fw-semibold" href="{% url 'leaderboard' %}">
-          🏆 Leaderboard
+          🏆 LEADERBOARD
         </a>
       </div>
 
@@ -165,7 +165,7 @@
       <div id="mainNav" class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav align-items-lg-center gap-2">
           <li class="nav-item d-lg-none">
-            <a class="nav-link" href="{% url 'leaderboard' %}">🏆 Leaderboard</a>
+            <a class="nav-link" href="{% url 'leaderboard' %}">🏆 LEADERBOARD</a>
           </li>
 
           {% if user.is_authenticated %}

@@ -49,7 +49,7 @@
             {% endif %}
           </div>
 
-          <!-- Stars + helper -->
+          <!-- Stars -->
           <div class="rating-stars mb-1" data-profile="{{ featured_profile.id }}">
             {% for i in "12345" %}
               <span class="star {% if featured_profile.avg_rating|default:0 >= i %}selected{% endif %}" data-value="{{ i }}">★</span>
@@ -87,155 +87,8 @@
       </div>
     </div>
   </div>
-
-  <!-- How It Works Card -->
-  <div class="col-12 col-md-4 mx-2">
-    <div class="card shadow-sm h-100 three-d-card">
-      <div class="card-body">
-        <h4 class="card-title">👋 Welcome to Scoreboard Social!</h4>
-        <p class="card-text">Here's how to get started:</p>
-        <ul class="list-unstyled ps-3">
-          <li>⭐ <strong>Click stars</strong> to rate a profile from 1–5.</li>
-          <li>❤️ <strong>Vote Fan Favorite</strong> once per profile.</li>
-          <li>📝 <strong>Leave comments</strong> and join the discussion.</li>
-          <li>🏆 <strong>Check the leaderboard</strong> for top influencers.</li>
-          <li>✅ <strong>Create an account</strong> to rate and comment on profiles.</li>
-        </ul>
-        <a href="{% url 'signup' %}" class="btn btn-varsity w-100 mt-2">Create Account</a>
-      </div>
-    </div>
-  </div>
 </div>
 {% endif %}
-
-<!-- Leaderboard Snapshot (Mini-Spotlight) -->
-<div class="container mt-4">
-  <h3 class="text-center mb-4 text-varsity">🏆 Leaderboard Snapshot</h3>
-
-  <div class="row justify-content-center g-3">
-    {% for profile in top_rated %}
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card spotlight-card bg-card text-white spotlight-mini shadow-sm h-100 three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
-          {% if profile.image %}
-            <div class="card-bg" style="background-image: url('{{ profile.image.url }}');"></div>
-          {% else %}
-            <div class="card-bg" style="background-image: url('{% static 'images/default_profile.jpg' %}');"></div>
-          {% endif %}
-
-          <div class="row g-0 align-items-center position-relative">
-            <!-- Optional avatar overlay for identity -->
-            <div class="col-4 p-3 text-center">
-              {% if profile.image %}
-                <img src="{{ profile.image.url }}" class="img-fluid rounded-circle shadow avatar-mini" alt="{{ profile.name }}">
-              {% else %}
-                <img src="{% static 'images/default_profile.jpg' %}" class="img-fluid rounded-circle shadow avatar-mini" alt="Default Profile">
-              {% endif %}
-              <div><span class="rating-chip rating-chip-mini">⭐ {{ profile.avg_rating|default:0|floatformat:1 }}</span></div>
-            </div>
-
-            <div class="col-8 p-3">
-              <h6 class="fw-bold mb-1 name text-white">{{ profile.name }}</h6>
-              <p class="mb-2">
-                <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
-              </p>
-              <div class="d-flex justify-content-between align-items-center">
-                <small class="text-white-50">Rated by {{ profile.total_ratings }}</small>
-                <a href="{% url 'profile_detail' profile.id %}" class="btn btn-sm btn-varsity">View</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-
-  <div class="text-center mt-4">
-    <a href="{% url 'leaderboard' %}" class="btn btn-outline-primary">View Full Leaderboard</a>
-  </div>
-</div>
-
-<!-- Newest Profiles (Spotlight Tiny + Horizontal Scroll on Mobile) -->
-<div class="container mb-5">
-  <h4 class="text-center mb-3">🆕 New Profiles</h4>
-
-  <!-- Mobile: horizontal scroll shelf -->
-  <div class="hscroll-shelf d-md-none">
-    {% for profile in newest_profiles|slice:":6" %}
-      <a href="{% url 'profile_detail' profile.id %}" class="text-decoration-none text-dark">
-        <div class="card spotlight-card bg-card text-white spotlight-tiny shadow-sm three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
-          {% if profile.image %}
-            <div class="card-bg" style="background-image: url('{{ profile.image.url }}');"></div>
-          {% else %}
-            <div class="card-bg" style="background-image: url('{% static 'images/default_profile.jpg' %}');"></div>
-          {% endif %}
-
-          <div class="row g-0 align-items-center position-relative">
-            <!-- Avatar + Rating -->
-            <div class="col-4 p-2 text-center">
-              {% if profile.image %}
-                <img src="{{ profile.image.url }}" class="img-fluid rounded-circle shadow avatar-tiny" alt="{{ profile.name }}">
-              {% else %}
-                <img src="{% static 'images/default_profile.jpg' %}" class="img-fluid rounded-circle shadow avatar-tiny" alt="Default Profile">
-              {% endif %}
-              <div><span class="rating-chip rating-chip-tiny">⭐ {{ profile.avg_rating|default:0|floatformat:1 }}</span></div>
-            </div>
-
-            <!-- Name + Meta -->
-            <div class="col-8 p-2">
-              <div class="d-flex align-items-center gap-2 mb-1">
-                <h6 class="fw-bold mb-0 name text-white">{{ profile.name|truncatechars:28 }}</h6>
-                <span class="badge bg-light text-dark border">New</span>
-              </div>
-              <small class="text-white-50 d-block mb-2">Joined {{ profile.created_at|date:"M d" }}</small>
-
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
-                <span class="btn btn-sm btn-varsity">View</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </a>
-    {% endfor %}
-  </div>
-
-  <!-- Tablet/Desktop: grid layout -->
-  <div class="row justify-content-center g-3 d-none d-md-flex">
-    {% for profile in newest_profiles|slice:":6" %}
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card spotlight-card bg-card text-white spotlight-tiny shadow-sm h-100 three-d-card {% if profile.influence_score >= 250 %}gold-glow{% endif %}">
-          {% if profile.image %}
-            <div class="card-bg" style="background-image: url('{{ profile.image.url }}');"></div>
-          {% else %}
-            <div class="card-bg" style="background-image: url('{% static 'images/default_profile.jpg' %}');"></div>
-          {% endif %}
-
-          <div class="row g-0 align-items-center position-relative">
-            <div class="col-3 p-2 text-center">
-              {% if profile.image %}
-                <img src="{{ profile.image.url }}" class="img-fluid rounded-circle shadow avatar-tiny" alt="{{ profile.name }}">
-              {% else %}
-                <img src="{% static 'images/default_profile.jpg' %}" class="img-fluid rounded-circle shadow avatar-tiny" alt="Default Profile">
-              {% endif %}
-              <div><span class="rating-chip rating-chip-tiny">⭐ {{ profile.avg_rating|default:0|floatformat:1 }}</span></div>
-            </div>
-            <div class="col-9 p-2">
-              <div class="d-flex align-items-center gap-2 mb-1">
-                <h6 class="fw-bold mb-0 name text-white">{{ profile.name|truncatechars:28 }}</h6>
-                <span class="badge bg-light text-dark border">New</span>
-              </div>
-              <small class="text-white-50 d-block mb-2">Joined {{ profile.created_at|date:"M d" }}</small>
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
-                <a href="{% url 'profile_detail' profile.id %}" class="btn btn-sm btn-varsity">View</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-</div>
 
 <form method="get" class="mb-4 d-flex" role="search">
   <input type="text" name="q" class="form-control me-2" placeholder="Search profiles..." value="{{ query|default_if_none:'' }}">
@@ -546,5 +399,4 @@
   });
 </script>
 
-<form id="csrf-form">{% csrf_token %}</form>
 {% endblock %}
