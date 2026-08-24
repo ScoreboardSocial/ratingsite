@@ -3,9 +3,59 @@
 
 {% block content %}
 
+<section class="scoreboard-hero text-center py-5 mb-4">
+  <div class="container">
+    <p class="hero-kicker mb-2">Scoreboard Social</p>
+
+    <h1 class="display-4 fw-bold mb-3">
+      Who’s Running the Board?
+    </h1>
+
+    <p class="lead mb-4">
+      Vote, rank, comment, and see who’s trending right now.
+    </p>
+
+    <a href="#vote-section" class="btn btn-warning btn-lg fw-bold px-5">
+      Vote Now
+    </a>
+  </div>
+</section>
+
+<section id="vote-section" class="container mb-5">
+  <div class="section-header text-center mb-4">
+    <h2 class="fw-bold">🔥 Quick Vote</h2>
+    <p class="text-muted">Tap a profile and make your pick.</p>
+  </div>
+
+  <div class="row g-4">
+    {% for profile in profiles|slice:":4" %}
+      <div class="col-6 col-md-3">
+        <div class="quick-vote-card text-center">
+          <a href="{% url 'profile_detail' profile.id %}">
+            {% if profile.image %}
+              <img src="{{ profile.image.url }}" class="quick-vote-img" alt="{{ profile.name }}">
+            {% else %}
+              <div class="quick-vote-placeholder">No Image</div>
+            {% endif %}
+          </a>
+
+          <h5 class="mt-3 mb-1">{{ profile.name }}</h5>
+
+          <p class="small text-muted mb-2">
+            Avg: {{ profile.avg_rating|default:0|floatformat:1 }}
+          </p>
+
+          <a href="{% url 'profile_detail' profile.id %}" class="btn btn-sm btn-outline-warning fw-bold">
+            Vote
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
 {% if featured_profile %}
 <div class="row justify-content-center mb-4">
-  <!-- Featured (Spotlight style with background image + gradient) -->
   <div class="col-12 col-md-7 mx-2">
     <div class="card spotlight-card bg-card text-white shadow-lg h-100 three-d-card gold-glow">
       {% if featured_profile.image %}
@@ -15,7 +65,6 @@
       {% endif %}
 
       <div class="row g-0 h-100 position-relative">
-        <!-- Image + Rating -->
         <div class="col-4 p-4 text-center align-self-center">
           {% if featured_profile.image %}
             <img src="{{ featured_profile.image.url }}" class="img-fluid rounded-circle shadow avatar" alt="{{ featured_profile.name }}">
@@ -28,7 +77,6 @@
           </div>
         </div>
 
-        <!-- Details + Actions -->
         <div class="col-8 d-flex flex-column justify-content-center p-4">
           <div class="d-flex align-items-center mb-1">
             <h3 class="fw-bold mb-0 name me-2">{{ featured_profile.name }}</h3>
@@ -39,7 +87,6 @@
             <p class="small text-white-50 mb-2">{{ featured_profile.bio|truncatechars:110 }}</p>
           {% endif %}
 
-          <!-- Social -->
           <div class="mb-2 social">
             {% if featured_profile.instagram_url %}
               <a href="{{ featured_profile.instagram_url }}" target="_blank" class="me-2" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
@@ -49,19 +96,19 @@
             {% endif %}
           </div>
 
-          <!-- Stars -->
           <div class="rating-stars mb-1" data-profile="{{ featured_profile.id }}">
             {% for i in "12345" %}
               <span class="star {% if featured_profile.avg_rating|default:0 >= i %}selected{% endif %}" data-value="{{ i }}">★</span>
             {% endfor %}
           </div>
+
           <div class="d-flex justify-content-between align-items-center">
             <small class="text-white-50">Click to rate (no login required)</small>
             <small class="text-white-50">Rated by <span id="total-votes-{{ featured_profile.id }}">{{ featured_profile.total_ratings }}</span></small>
           </div>
+
           <p id="rating-message-{{ featured_profile.id }}" class="text-success mt-1 small"></p>
 
-          <!-- Tags -->
           {% if featured_profile.tags.all %}
             <p class="mt-2 mb-2">
               {% for tag in featured_profile.tags.all %}
@@ -70,7 +117,6 @@
             </p>
           {% endif %}
 
-          <!-- Actions -->
           <div class="mt-auto">
             <form method="POST" action="{% url 'vote_fan_favorite' featured_profile.id %}">
               {% csrf_token %}
@@ -78,6 +124,7 @@
                 ❤️ Fan Favorite ({{ featured_profile.fan_votes.count }})
               </button>
             </form>
+
             <a href="{% url 'profile_detail' featured_profile.id %}" class="btn btn-sm w-100"
                style="background-color: var(--varsity-purple); color: var(--varsity-cream); font-weight:bold;">
               View Full Profile
@@ -90,21 +137,81 @@
 </div>
 {% endif %}
 
+<section class="container mb-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1">🏆 Trending Profiles</h2>
+      <p class="text-muted mb-0">See who’s climbing the board.</p>
+    </div>
+
+    <a href="{% url 'leaderboard' %}" class="btn btn-outline-light">
+      View Leaderboard
+    </a>
+  </div>
+</section>
+
 <form method="get" class="mb-4 d-flex" role="search">
   <input type="text" name="q" class="form-control me-2" placeholder="Search profiles..." value="{{ query|default_if_none:'' }}">
   <button type="submit" class="btn btn-outline-primary">Search</button>
 </form>
 
-<!-- Varsity Theme + Spotlight Card Styles -->
 <style>
-  :root{
-    --varsity-purple:#6B1E8B;
-    --varsity-gold:#FFD700;
-    --varsity-cream:#F8F4E3;
-    --varsity-gray:#5A5A5A;
+  :root {
+    --varsity-purple: #6B1E8B;
+    --varsity-gold: #FFD700;
+    --varsity-cream: #F8F4E3;
+    --varsity-gray: #5A5A5A;
   }
 
-  body { background-color: #CCCCCC; }
+  body {
+    background-color: #CCCCCC;
+  }
+
+  .scoreboard-hero {
+    background: linear-gradient(135deg, #2d145f, #6B1E8B);
+    color: #fff;
+    border-radius: 0 0 32px 32px;
+  }
+
+  .hero-kicker {
+    color: var(--varsity-gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+  }
+
+  .quick-vote-card {
+    background: var(--varsity-cream);
+    border: 2px solid var(--varsity-gold);
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .quick-vote-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+  }
+
+  .quick-vote-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 16px;
+  }
+
+  .quick-vote-placeholder {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #eee;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-weight: bold;
+  }
 
   .btn-varsity {
     background-color: var(--varsity-purple);
@@ -112,7 +219,11 @@
     font-weight: bold;
     border-radius: 0.5rem;
   }
-  .btn-varsity:hover { background-color: #4f156d; color: #fff; }
+
+  .btn-varsity:hover {
+    background-color: #4f156d;
+    color: #fff;
+  }
 
   .three-d-card {
     border-radius: 1rem;
@@ -120,7 +231,11 @@
     box-shadow: 0 6px 15px rgba(107, 30, 139, 0.15), 0 10px 30px rgba(107, 30, 139, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .three-d-card:hover { transform: translateY(-6px); box-shadow: 0 12px 25px rgba(107, 30, 139, 0.2); }
+
+  .three-d-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(107, 30, 139, 0.2);
+  }
 
   .varsity-badge {
     background-color: #ffb200;
@@ -129,9 +244,11 @@
     padding: 0.4em 0.6em;
     border-radius: 0.4rem;
   }
-  .text-varsity { color: var(--varsity-purple); }
 
-  /* ----- Background image card (overlay + gradient) ----- */
+  .text-varsity {
+    color: var(--varsity-purple);
+  }
+
   .card.bg-card {
     position: relative;
     overflow: hidden;
@@ -139,6 +256,7 @@
     color: #fff;
     background: transparent;
   }
+
   .card.bg-card .card-bg {
     position: absolute;
     inset: 0;
@@ -149,6 +267,7 @@
     transition: transform .4s ease;
     z-index: 0;
   }
+
   .card.bg-card .card-bg::after {
     content: "";
     position: absolute;
@@ -163,32 +282,55 @@
     pointer-events: none;
     border-radius: inherit;
   }
-  .card.bg-card:hover .card-bg { transform: scale(1.05); }
-  .card.bg-card .card-body,
-  .card.bg-card .row { position: relative; z-index: 2; }
-  .spotlight-card.bg-card { background: transparent; }
 
-  /* ----- SPOTLIGHT CARD (full) ----- */
-  .spotlight-card { background-color: var(--varsity-cream); border: 0; }
-  .spotlight-card .avatar { width:100px; height:100px; object-fit:cover; border: 3px solid var(--varsity-gold); }
-  .spotlight-card .rating-chip{
-    display:inline-block; margin-top:.5rem;
-    background-color: var(--varsity-gold); color: var(--varsity-purple);
-    font-weight:bold; border-radius:999px; padding:.2rem .6rem;
+  .card.bg-card:hover .card-bg {
+    transform: scale(1.05);
   }
-  .spotlight-card .name { color: inherit; }
-  .spotlight-card .social a { color: #fff; }
-  .spotlight-card .social a:hover { opacity:.85; }
 
-  /* ----- SPOTLIGHT MINI (Leaderboard Snapshot) ----- */
-  .spotlight-mini .avatar-mini{ width:70px; height:70px; object-fit:cover; border: 3px solid var(--varsity-gold); }
-  .spotlight-mini .rating-chip-mini{ margin-top:.25rem; padding:.15rem .5rem; font-size:.85rem; }
+  .card.bg-card .card-body,
+  .card.bg-card .row {
+    position: relative;
+    z-index: 2;
+  }
 
-  /* ----- SPOTLIGHT TINY (Newest Profiles) ----- */
-  .spotlight-tiny .avatar-tiny { width:56px; height:56px; object-fit:cover; border: 2px solid var(--varsity-gold); }
-  .spotlight-tiny .rating-chip-tiny { margin-top:.25rem; padding:.1rem .45rem; font-size:.75rem; }
+  .spotlight-card.bg-card {
+    background: transparent;
+  }
 
-  /* ----- Horizontal scroll shelf (mobile) ----- */
+  .spotlight-card {
+    background-color: var(--varsity-cream);
+    border: 0;
+  }
+
+  .spotlight-card .avatar {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 3px solid var(--varsity-gold);
+  }
+
+  .spotlight-card .rating-chip {
+    display: inline-block;
+    margin-top: .5rem;
+    background-color: var(--varsity-gold);
+    color: var(--varsity-purple);
+    font-weight: bold;
+    border-radius: 999px;
+    padding: .2rem .6rem;
+  }
+
+  .spotlight-card .name {
+    color: inherit;
+  }
+
+  .spotlight-card .social a {
+    color: #fff;
+  }
+
+  .spotlight-card .social a:hover {
+    opacity: .85;
+  }
+
   .hscroll-shelf {
     display: flex;
     overflow-x: auto;
@@ -198,18 +340,28 @@
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
   }
+
   .hscroll-shelf > a,
   .hscroll-shelf > .card {
     min-width: 85%;
     scroll-snap-align: start;
     text-decoration: none;
   }
-  .hscroll-shelf::-webkit-scrollbar { height: 8px; }
-  .hscroll-shelf::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 10px; }
-  .hscroll-shelf::-webkit-scrollbar-track { background: transparent; }
+
+  .hscroll-shelf::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .hscroll-shelf::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.15);
+    border-radius: 10px;
+  }
+
+  .hscroll-shelf::-webkit-scrollbar-track {
+    background: transparent;
+  }
 </style>
 
-<!-- Sorting Links -->
 <div class="mb-4 d-flex flex-wrap gap-2 align-items-center">
   <strong>Sort by:</strong>
   <a href="?sort=rating" class="btn btn-outline-secondary btn-sm {% if sort == 'rating' %}active{% endif %}">Highest Rated</a>
@@ -219,7 +371,6 @@
   <a href="?shuffle=1" class="btn btn-outline-primary btn-sm">🔀 Shuffle</a>
 </div>
 
-<!-- Tag Filtering -->
 {% if tags %}
 <div class="mb-4">
   <strong>Filter by tags:</strong>
@@ -235,7 +386,6 @@
 <form id="csrf-form">{% csrf_token %}</form>
 
 {% if profiles %}
-  {# Spotlight grid: two-up on md+ screens (image background cards) #}
   <div class="row row-cols-1 row-cols-md-2 g-4">
     {% for profile in profiles %}
       <div class="col">
@@ -247,7 +397,6 @@
           {% endif %}
 
           <div class="row g-0 h-100 position-relative">
-            <!-- Image / Rating -->
             <div class="col-4 p-3 text-center align-self-center">
               {% if profile.image %}
                 <img src="{{ profile.image.url }}" class="img-fluid rounded-circle shadow avatar" alt="{{ profile.name }}">
@@ -257,7 +406,6 @@
               <div><span class="rating-chip">⭐ {{ profile.avg_rating|default:0|floatformat:1 }}</span></div>
             </div>
 
-            <!-- Details / Actions -->
             <div class="col-8 d-flex flex-column justify-content-center p-3">
               <h5 class="fw-bold mb-1 name">{{ profile.name }}</h5>
 
@@ -274,19 +422,19 @@
                 {% endif %}
               </div>
 
-              <!-- Stars + helper text -->
               <div class="rating-stars mb-1" data-profile="{{ profile.id }}">
                 {% for i in "12345" %}
                   <span class="star {% if profile.avg_rating|default:0 >= i %}selected{% endif %}" data-value="{{ i }}">★</span>
                 {% endfor %}
               </div>
+
               <div class="d-flex justify-content-between align-items-center">
                 <small class="text-white-50">Click to rate (no login required)</small>
                 <small class="text-white-50">Rated by <span id="total-votes-{{ profile.id }}">{{ profile.total_ratings }}</span></small>
               </div>
+
               <p id="rating-message-{{ profile.id }}" class="text-success mt-1 small"></p>
 
-              <!-- Tags -->
               {% if profile.tags.all %}
                 <p class="mt-2 mb-2">
                   {% for tag in profile.tags.all %}
@@ -295,9 +443,10 @@
                 </p>
               {% endif %}
 
-              <!-- Influence + Actions -->
               <div class="mt-auto">
-                <p class="mb-2"><span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span></p>
+                <p class="mb-2">
+                  <span class="badge varsity-badge">🌟 {{ profile.influence_score }}</span>
+                </p>
 
                 <form method="POST" action="{% url 'vote_fan_favorite' profile.id %}">
                   {% csrf_token %}
@@ -318,7 +467,6 @@
     {% endfor %}
   </div>
 
-  <!-- Condensed Pagination -->
   <nav class="mt-4" aria-label="Page navigation">
     <ul class="pagination justify-content-center flex-wrap">
       {% if prev_chunk_page %}
@@ -353,7 +501,6 @@
   <p>No profiles found.</p>
 {% endif %}
 
-<!-- jQuery + Star Interactions -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   $(function () {
@@ -363,6 +510,7 @@
       $(this).prevAll().addBack().addClass("hovered");
       $(this).nextAll().removeClass("hovered");
     });
+
     $(document).on("mouseleave", ".rating-stars", function () {
       $(this).find(".star").removeClass("hovered");
     });
@@ -381,7 +529,6 @@
         success: function (response) {
           $(`#rating-message-${profileId}`).text(`You rated this profile ${rating} stars!`);
 
-          // Update rating chip and vote count
           const avg = parseFloat(response.new_rating).toFixed(1);
           starsWrap.closest('.spotlight-card').find('.rating-chip').text(`⭐ ${avg}`);
           $(`#total-votes-${profileId}`).text(response.total_votes);
